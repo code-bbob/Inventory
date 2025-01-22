@@ -103,7 +103,7 @@ export default function LandingPage() {
             </motion.h1>
           </motion.div>
           <Button
-            onClick={()=>navigate("/")}
+            onClick={()=>navigate("/mobile")}
             className="absolute right-0 top-full mt-2 lg:top-1/2 lg:-translate-y-1/2 bg-white hover:bg-gray-500 text-black"
           >
             <LogOut className="mr-2 h-4 w-4" />
@@ -135,14 +135,14 @@ export default function LandingPage() {
             value={currentStats.purchases}
             subValue={isMonthly ? currentStats.ptamt : currentStats.dailyptamt}
             icon={<ShoppingCart className="h-6 w-6 text-blue-400" />}
-            onClick={() => navigate("/purchases")}
+            onClick={() => navigate("/mobile/purchases")}
           />
           <StatCard
             title="Total Sales"
             value={currentStats.sales}
             subValue={isMonthly ? currentStats.stamt : currentStats.dailystamt}
             icon={<TrendingUp className="h-6 w-6 text-green-400" />}
-            onClick={() => navigate("/sales")}
+            onClick={() => navigate("/mobile/sales")}
           />
           <StatCard 
             title="Profit"

@@ -28,7 +28,7 @@ export default function AllVendorBrand() {
         const response = await api.get(`alltransaction/vendorbrand/${id}/`)
         setPhones(response.data)
         setFilteredPhones(response.data)
-        setBrandName(response.data[0].brand_name)
+        setBrandName(response.data[0]?.brand_name)
         setLoading(false)
       } catch (err) {
         console.error('Error fetching brand phones:', err)
@@ -38,7 +38,7 @@ export default function AllVendorBrand() {
     }
 
     fetchBrandPhones()
-  }, [id, api])
+  }, [])
 
   useEffect(() => {
     const results = phones.filter(phone =>

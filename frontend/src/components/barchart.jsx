@@ -48,6 +48,25 @@ export default function BarCh() {
   const [chartData, setChartData] = useState([]);
 
   // Fetch data on component mount
+
+
+  const CustomXAxisTick = ({ x, y, payload }) => {
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text 
+          x={0} 
+          y={0} 
+          dy={16} 
+          textAnchor="middle"
+          style={{ fill: "#FFFFFF", fontSize: 13, fontWeight: "bold" }}
+        >
+          {payload.value}
+        </text>
+      </g>
+    );
+  };
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -95,12 +114,12 @@ export default function BarCh() {
   };
 
   return (
-    <div className="flex h-full flex-col md:flex-row bg-gradient-to-br from-slate-900 to-slate-800">
-      <Sidebar className="w-full md:w-64 md:min-h-screen" />
-      <div className="lg:ml-64 flex flex-col items-center w-full justify-center p-4 md:p-6">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+      <Sidebar className="w-full md:w-64" />
+      <div className="flex-grow p-4 lg:ml-64 md:p-6 overflow-y-auto">
         <form
           onSubmit={handleDateSearch}
-          className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 pb-7"
+          className="flex flex-col lg:flex-row  justify-center space-y-4 lg:space-y-0 lg:space-x-4 mb-6"
         >
           <div className="flex items-center space-x-2">
             <Label htmlFor="startDate" className="text-white whitespace-nowrap">
@@ -146,7 +165,7 @@ export default function BarCh() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer className="w-full h-80 sm:h-80 lg:h-80" config={chartConfig}>
+            <ChartContainer className="w-full h-[50vh] md:h-[60vh] lg:h-[60vh]" config={chartConfig}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={chartData}
@@ -160,20 +179,21 @@ export default function BarCh() {
                   <CartesianGrid vertical={false} />
                   <XAxis
                     dataKey="Brand"
-                    className="text-white"
+                    tick={<CustomXAxisTick />}
+                    
                   />
                   <ChartTooltip
                     cursor={false}
                     content={<ChartTooltipContent hideLabel />}
                   />
                   <Bar dataKey="Sales" fill="rgba(255,255,255,0.4)" radius={8}>
-                    <LabelList position="top" offset={12} fontSize={12} />
+                    <LabelList position="top" fill="#ffffff" offset={12} fontSize={12} fontWeight={"bold"} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
-          <CardFooter className="flex justify-between items-start gap-2 text-sm">
+          <CardFooter className="flex flex-col sm:flex-row justify-between items-start gap-4 text-sm">
             <div className="flex-col">
               <div className="flex pb-2 gap-2 font-medium leading-none">
                 {brandsSold(chartData)} Brands sold {!isFiltered && <span> this month </span>}
@@ -185,7 +205,7 @@ export default function BarCh() {
                 was the top seller <TrendingUp className="h-4 ml-2 w-4" />
               </div>
             </div>
-            <div className="space-x-2">
+            <div className="flex flex-wrap gap-2">
               <Button className="hover:bg-purple-600" onClick={() => setChartData(data.count)}>Count</Button>
               <Button className="hover:bg-purple-600" onClick={() => setChartData(data.amount)}>Amount</Button>
               <Button className="hover:bg-purple-600" onClick={() => setChartData(data.profit)}>Profit</Button>

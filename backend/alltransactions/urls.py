@@ -12,5 +12,6 @@ urlpatterns = [
     path('stats/', views.StatsView.as_view(), name='stat'),
     path('vendorbrand/',views.VendorBrandsView.as_view(), name='vendorbrand'),
     path('vendorbrand/<int:pk>/',views.SingleVendorBrandView.as_view(), name = 'singlevendorbrand'),
+    path('invoice/<int:pk>/', views.generate_sales_invoice, name='generate_invoice'),
 
 ]

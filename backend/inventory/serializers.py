@@ -10,7 +10,7 @@ class BrandSerializer(serializers.ModelSerializer):
 
     def get_items(self,obj):
         items = Item.objects.filter(phone__brand = obj).count()
-        return items
+        return items    
     
     def get_amount(self,obj):
         items = Item.objects.filter(phone__brand = obj)

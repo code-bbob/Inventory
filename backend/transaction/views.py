@@ -924,51 +924,6 @@ class BarChartView(APIView):
 
         return Response(res)
 
-# class LineGraphView(APIView):
-
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self,request,*args, **kwargs):
-        
-#         today = timezone.now()
-#         today = today - timezone.timedelta(days=3)
-#         start_date = today - timezone.timedelta(days=7)
-        
-        
-#         print(today)
-#         print(start_date)
-#         enterprise = request.user.person.enterprise
-
-#         sales = (
-#             Sales.objects.filter(sales_transaction__enterprise=enterprise, sales_transaction__date__date__range=[start_date, today])
-#             .values('sales_transaction__date__date')
-#             .annotate(total_sales=Sum('unit_price'))
-#         )
-
-#         sales_by_day = {
-#             (today - timezone.timedelta(days=i)).strftime('%A'): 0 for i in range(6, -1, -1)
-#         }
-#         for sale in sales:
-#             day_name = sale['sales_transaction__date__date'].strftime('%A')
-#             sales_by_day[day_name] = sale['total_sales']
-#         return Response(sales_by_day)
-    
-# # const chartData = [
-# #   { month: "January", desktop: 186 },
-# #   { month: "February", desktop: 305 },
-# #   { month: "March", desktop: 237 },
-# #   { month: "April", desktop: 73 },
-# #   { month: "May", desktop: 209 },
-# #   { month: "June", desktop: 214 },
-# #   { month: "June", desktop: 214 },
-
-# # ]
-
-        # sales = Sales.objects.filter(sales_transaction__enterprise = request.user.person.enterprise).annotate(total_sales=Sum('unit_price'))
-        # print(sales)
-        # return Response("sales")
-
-        from django.db.models import Sum
 from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -989,35 +944,125 @@ class LineGraphView(APIView):
         # Step 3: Get the enterprise associated with the current user
         enterprise = request.user.person.enterprise
 
-        # Step 4: Query to get total sales per day in the date range
+        # Step 4: Query to get sales data in the date range
         sales = (
             Sales.objects.filter(
                 sales_transaction__enterprise=enterprise,
                 sales_transaction__date__date__range=[start_date, today]
             )
             .values('sales_transaction__date__date')
-            .annotate(total_sales=Sum('unit_price'))
+            .annotate(total_sales=Sum('unit_price'), count=models.Count('id'))
         )
 
-        # Step 5: Initialize a list of dictionaries for the last 7 days
-        sales_by_day = [
+        # Step 5: Initialize lists for the last 7 days
+        count_list = [
+            {'day': (today - timezone.timedelta(days=i)).strftime('%A'), 'count': 0}
+            for i in range(6, -1, -1)
+        ]
+        amount_list = [
+            {'day': (today - timezone.timedelta(days=i)).strftime('%A'), 'count': 0}
+            for i in range(6, -1, -1)
+        ]
+        profit_list = [
             {'day': (today - timezone.timedelta(days=i)).strftime('%A'), 'count': 0}
             for i in range(6, -1, -1)
         ]
 
         # Step 6: Create a mapping from day name to index in the list
-        day_name_to_index = {entry['day']: idx for idx, entry in enumerate(sales_by_day)}
+        day_name_to_index = {entry['day']: idx for idx, entry in enumerate(count_list)}
 
-        # Step 7: Update the list with actual sales data
+        # Step 7: Update the lists with actual sales data (count and amount)
         for sale in sales:
             sale_date = sale['sales_transaction__date__date']
             day_name = sale_date.strftime('%A')
             total_sales = sale['total_sales']
+            total_count = sale['count']
 
-            # Find the index in the list for this day and update the count
+            # Find the index in the list for this day and update count and amount
             idx = day_name_to_index.get(day_name)
             if idx is not None:
-                sales_by_day[idx]['count'] = total_sales
+                count_list[idx]['count'] = total_count
+                amount_list[idx]['count'] = total_sales
 
-        # Step 8: Return the response with the sales by day
-        return Response(sales_by_day)
+        # Step 8: Calculate profit for each day
+        for sale in sales:
+            sale_date = sale['sales_transaction__date__date']
+            day_name = sale_date.strftime('%A')
+
+            # Find all sales for the specific date
+            daily_sales = Sales.objects.filter(
+                sales_transaction__enterprise=enterprise,
+                sales_transaction__date__date=sale_date
+            )
+
+            total_profit = 0
+            for daily_sale in daily_sales:
+                purchase = Purchase.objects.filter(imei_number=daily_sale.imei_number).first()
+                if purchase:
+                    total_profit += daily_sale.unit_price - purchase.unit_price
+
+            # Update the corresponding day entry with the profit
+            idx = day_name_to_index.get(day_name)
+            if idx is not None:
+                profit_list[idx]['count'] = round(total_profit, 2)
+
+        # Step 9: Construct the response data
+        response_data = {
+            "count": count_list,
+            "amount": amount_list,
+            "profit": profit_list
+        }
+
+        # Step 10: Return the response
+        return Response(response_data)
+
+
+
+
+# class LineGraphView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, *args, **kwargs):
+#         # Step 1: Import necessary modules
+#         from django.db.models import Sum
+#         from django.utils import timezone
+
+#         # Step 2: Calculate the date range for the last 7 days
+#         today = timezone.now().date()
+#         start_date = today - timezone.timedelta(days=6)  # Include today and the previous 6 days
+
+#         # Step 3: Get the enterprise associated with the current user
+#         enterprise = request.user.person.enterprise
+
+#         # Step 4: Query to get total sales per day in the date range
+#         sales = (
+#             Sales.objects.filter(
+#                 sales_transaction__enterprise=enterprise,
+#                 sales_transaction__date__date__range=[start_date, today]
+#             )
+#             .values('sales_transaction__date__date')
+#             .annotate(total_sales=Sum('unit_price'))
+#         )
+
+#         # Step 5: Initialize a list of dictionaries for the last 7 days
+#         sales_by_day = [
+#             {'day': (today - timezone.timedelta(days=i)).strftime('%A'), 'count': 0}
+#             for i in range(6, -1, -1)
+#         ]
+
+#         # Step 6: Create a mapping from day name to index in the list
+#         day_name_to_index = {entry['day']: idx for idx, entry in enumerate(sales_by_day)}
+
+#         # Step 7: Update the list with actual sales data
+#         for sale in sales:
+#             sale_date = sale['sales_transaction__date__date']
+#             day_name = sale_date.strftime('%A')
+#             total_sales = sale['total_sales']
+
+#             # Find the index in the list for this day and update the count
+#             idx = day_name_to_index.get(day_name)
+#             if idx is not None:
+#                 sales_by_day[idx]['count'] = total_sales
+
+#         # Step 8: Return the response with the sales by day
+#         return Response(sales_by_day)

@@ -391,3 +391,90 @@ class SingleVendorBrandView(APIView):
         vendors = Vendor.objects.filter(enterprise = request.user.person.enterprise, brand=pk)
         serializer = VendorSerializer(vendors, many=True)
         return Response(serializer.data)
+
+# views.py
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate
+from reportlab.lib.styles import getSampleStyleSheet
+import io
+from .models import SalesTransaction
+
+def generate_sales_invoice(request, pk):
+    # Get the sales transaction object
+    transaction = get_object_or_404(SalesTransaction, id=pk)
+
+    # Create a buffer to hold the PDF data
+    buffer = io.BytesIO()
+
+    # Create a PDF object and set up the document
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=40, leftMargin=40, topMargin=60, bottomMargin=18)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    # Add invoice title
+    elements.append(Paragraph(f"Invoice #{transaction.bill_no}", styles['Title']))
+
+    # Add customer information
+    customer_info = f"""
+    <b>Customer Name:</b> {transaction.name}<br/>
+    <b>Phone Number:</b> {transaction.phone_number}<br/>
+    <b>Date:</b> {transaction.date.strftime('%Y-%m-%d')}<br/>
+    <b>Payment Method:</b> {transaction.method.capitalize()}<br/>
+    """
+    elements.append(Paragraph(customer_info, styles['Normal']))
+    elements.append(Paragraph("<br/><br/>", styles['Normal']))
+
+    # Prepare the table data
+    table_data = [["Product Name", "Quantity", "Unit Price", "Total Price"]]
+
+    for sale in transaction.sales.all():
+        table_data.append([
+            sale.product.name,
+            sale.quantity,
+            f"{sale.unit_price:.2f}",
+            f"{sale.total_price:.2f}"
+        ])
+
+    # Add total amount row
+    table_data.append(["", "", "Total Amount:", f"{transaction.total_amount:.2f}"])
+
+    # Create the table
+    table = Table(table_data, colWidths=[3 * inch, inch, inch, inch])
+
+    # Add style to the table
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0d47a1')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (1, 1), (-1, -2), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -2), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('SPAN', (-2, -1), (-1, -1)),
+        ('ALIGN', (-1, -1), (-1, -1), 'RIGHT'),
+        ('FONTNAME', (-1, -1), (-1, -1), 'Helvetica-Bold'),
+    ])
+    table.setStyle(style)
+
+    elements.append(table)
+
+    # Build the PDF
+    doc.build(elements)
+
+    # Get the PDF value from the buffer
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    # Return the PDF as a response
+    response = HttpResponse(content_type='application/pdf')
+    filename = f"Invoice_{transaction.bill_no}.pdf"
+    content = f"attachment; filename={filename}"
+    response['Content-Disposition'] = content
+    response.write(pdf)
+    return response

@@ -127,6 +127,8 @@ class VendorTransactions(models.Model):
     cashout_date = models.DateField(null=True)
     enterprise = models.ForeignKey('enterprise.Enterprise', on_delete=models.CASCADE,related_name='all_vendor_transactions')
     desc = models.CharField(max_length=50)
+    purchase_transaction = models.ForeignKey(PurchaseTransaction, on_delete=models.CASCADE,related_name="vendor_transaction",null=True,blank=True)
+
     
     def __str__(self):
         return f"Vendor Transaction {self.pk} of {self.vendor.name}"

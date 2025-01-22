@@ -48,7 +48,9 @@ import AllVendorTransactionForm from "./pages/allvendortransactionform";
 import EditAllVendorTransactionForm from "./components/editallvendortransactions";
 import BarCh from "./components/barchart";
 import LineGraph from "./components/linegraph";
+import SalesDashboard from "./components/salesdashboard";
 // import VendorTransactionForm from './pages/transaction-vendors';
+import Portfolio from "./pages/portfolio";
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.root);
@@ -84,6 +86,9 @@ function App() {
         
         <Route path = "bar" element={<BarCh/>}/>
         <Route path = "line" element={<LineGraph/>}/>
+        <Route path = "charts" element = {<SalesDashboard/>}/>
+
+        <Route path = "portfolio" element = {<Portfolio/>}/>
 
 
 
