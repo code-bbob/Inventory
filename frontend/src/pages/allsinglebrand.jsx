@@ -206,7 +206,7 @@ export default function AllBrandProducts() {
         brand: "",
         cost_price: "",
         selling_price: "",
-        branch: branchData.id.toString(),
+        branch: branchId,
       });
       setShowNewProductDialog(false);
     } catch (err) {
