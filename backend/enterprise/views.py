@@ -14,7 +14,9 @@ class BranchView(APIView):
 
     def get(self, request,id=None):
         user = request.user
+        print("HERE")
         enterprise = user.person.enterprise
+        print("NOT HERE")
         if id:
             branch = enterprise.branch.get(id=id)
             serializer = BranchSerializer(branch)

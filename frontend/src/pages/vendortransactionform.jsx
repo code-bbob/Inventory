@@ -121,7 +121,7 @@ function VendorTransactionForm() {
         formData
       );
       console.log("Response:", response.data);
-      navigate("/mobile/vendor-transactions");
+      navigate("/mobile/vendor-transactions/branch/" + branchId);
     } catch (error) {
       console.error("Error posting data:", error);
       setError("Failed to submit vendor transaction. Please try again.");

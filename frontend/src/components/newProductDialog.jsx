@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select";
 
 import ReactSelect from "react-select";
+import { useBranchManagement } from "../hooks/useBranchManagement";
 
 export default function NewProductDialog({
   open,
@@ -39,34 +40,32 @@ export default function NewProductDialog({
   newProductData,
   handleNewProductChange,
   handleNewProductBrandChange,
-  handleNewProductVendorChange,   // new prop
+  handleNewProductVendorChange,
   handleAddProduct,
   brands,
   openBrand,
   setOpenBrand,
-  branches,
-  userBranch,
-  selectedBranch,
-  vendors                        // new prop: array of { id, name }
+  vendors
 }) {
-  // Tailwind‑themed classNames for react‑select
-const vendorSelectClasses = {
-  control: ({ isFocused }) =>
-    cn(
-      "bg-slate-700 border border-slate-600 rounded px-2 py-1",
-      isFocused && "ring-2 ring-purple-500"
-    ),
-  input: () => "[&_input:focus]:ring-0",
-  placeholder: () => "text-sm text-slate-500",   // ← add this line
-  menu: () => "bg-slate-700 border border-slate-600 rounded mt-1 z-50",
-  option: ({ isFocused, isSelected }) =>
-    cn(
-      "px-3 py-2 cursor-pointer",
-      isFocused && "bg-slate-600",
-      isSelected && "bg-purple-600 text-white"
-    ),
-};
+  const { currentBranch } = useBranchManagement();
 
+  // Tailwind‑themed classNames for react‑select
+  const vendorSelectClasses = {
+    control: ({ isFocused }) =>
+      cn(
+        "bg-slate-700 border border-slate-600 rounded px-2 py-1",
+        isFocused && "ring-2 ring-purple-500"
+      ),
+    input: () => "[&_input:focus]:ring-0",
+    placeholder: () => "text-sm text-slate-500",
+    menu: () => "bg-slate-700 border border-slate-600 rounded mt-1 z-50",
+    option: ({ isFocused, isSelected }) =>
+      cn(
+        "px-3 py-2 cursor-pointer",
+        isFocused && "bg-slate-600",
+        isSelected && "bg-purple-600 text-white"
+      ),
+  };
 
   // Map your vendors into react-select format
   const vendorOptions = vendors?.map((v) => ({
@@ -197,43 +196,22 @@ const vendorSelectClasses = {
             </div>
           </div>
 
-          {/* Branch Select */}
+          {/* Branch Display - Now shows selected branch from localStorage */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductBranch" className="text-right text-white">
               Branch
             </Label>
             <div className="col-span-3">
-              <Select
-                onValueChange={(value) =>
-                  handleNewProductChange({ target: { name: "branch", value } })
-                }
-                value={newProductData.branch}
-              >
-                <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white">
-                  <SelectValue placeholder="Select branch" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {userBranch && Object.keys(userBranch).length > 0 ? (
-                    <SelectItem
-                      value={userBranch.id.toString()}
-                      className="text-white"
-                    >
-                      {userBranch.name}
-                    </SelectItem>
-                  ) : (
-                    <SelectItem
-                      value={branches?.id?.toString()}
-                      className="text-white"
-                    >
-                      {branches?.name}
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+              <div className="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2">
+                {currentBranch ? currentBranch.name : "No branch selected"}
+              </div>
+              <p className="text-xs text-slate-400 mt-1">
+                Branch is automatically set from your selection
+              </p>
             </div>
           </div>
 
-          {/* ← New: Vendors Multi‑Select → */}
+          {/* Vendors Multi‑Select */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductVendors" className="text-right text-white">
               Vendors

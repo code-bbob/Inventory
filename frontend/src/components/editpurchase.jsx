@@ -120,7 +120,7 @@ function EditPurchaseTransactionForm() {
 
   const handleDelete = (e) => {
     api.delete(`transaction/purchasetransaction/${purchaseId}/`)
-    navigate('/mobile/purchases/')
+    navigate('/mobile/purchases/branch/' + branchId);
   }
 
   const handleChange = (e) => {
@@ -226,7 +226,7 @@ function EditPurchaseTransactionForm() {
       setSubLoading(true)
       const response = await api.patch(`transaction/purchasetransaction/${purchaseId}/`, formData);
       console.log('Response:', response.data);
-      navigate('/mobile/purchases');
+      navigate('/mobile/purchases/branch/' + branchId);
     } catch (error) {
       console.error('Error updating data:', error);
       setError('Failed to update purchase transaction. Please try again.');
@@ -313,7 +313,7 @@ function EditPurchaseTransactionForm() {
     }
     finally{
       setSubLoading(false);
-      navigate('/mobile/purchases');
+      navigate('/mobile/purchases/branch/' + branchId);
       
       // window.location.reload();
     }
@@ -352,7 +352,7 @@ function EditPurchaseTransactionForm() {
         <div className="max-w-4xl mx-auto lg:ml-64">
           <div className="mb-6 flex justify-end">
             <Button
-              onClick={() => navigate('/mobile/purchases')}
+              onClick={() => navigate('/mobile/purchases/branch/' + branchId)}
               variant="outline"
               className="px-4 py-2 text-black text-right border-white hover:bg-gray-700 hover:text-white"
             >

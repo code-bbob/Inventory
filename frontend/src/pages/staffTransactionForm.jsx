@@ -79,7 +79,7 @@ function StaffTransactionForm() {
       // Adjust this endpoint to match your staff transaction creation URL
       const response = await api.post("alltransaction/stafftransaction/", formData);
       console.log("Response:", response.data);
-      navigate("/staff-transactions");
+      navigate("/staff-transactions/branch/" + branchId);
     } catch (err) {
       console.error("Error posting data:", err);
       setError("Failed to submit staff transaction. Please try again.");
@@ -110,7 +110,7 @@ function StaffTransactionForm() {
       <div className="flex-grow p-4 lg:p-6 lg:ml-64 overflow-auto">
         <div className="max-w-4xl mx-auto">
           <Button
-            onClick={() => navigate("/staff-transactions")}
+            onClick={() => navigate("/staff-transactions/branch/" + branchId)}
             variant="outline"
             className="mb-6 px-4 py-2 text-black border-white hover:bg-gray-700 hover:text-white"
           >

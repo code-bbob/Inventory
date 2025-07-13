@@ -5,7 +5,8 @@ import { login, logout } from "../redux/accessSlice";
 import { motion } from "framer-motion";
 import { Loader, Lock, Mail } from "lucide-react";
 import { Button } from '../components/ui/button';
-import { Input } from "../components/ui/input"
+import { Input } from "../components/ui/input";
+import { clearSelectedBranch } from "../utils/branchUtils";
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -33,9 +34,15 @@ const Login = () => {
       if (response.ok) {
         localStorage.setItem('accessToken', data.token.access);
         localStorage.setItem('refreshToken', data.token.refresh);
+        
+        // Clear any previously selected branch to force fresh selection
+        clearSelectedBranch();
+        
         setIsLoading(false)
         dispatch(login());
-        navigate('/');
+        
+        // Redirect to branch selection instead of dashboard
+        navigate('/select-branch');
       }
     } catch (err) {
       setError('Invalid email or password');

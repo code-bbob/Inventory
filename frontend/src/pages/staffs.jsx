@@ -146,12 +146,12 @@ export default function StaffPage() {
               />
             </div>
             <Button
-              onClick={() => navigate('/inventory')}
+              onClick={() => navigate('/')}
               variant="outline"
               className="w-full sm:w-auto px-5 text-slate-900 border-white hover:bg-gray-500 hover:text-slate-900"
             >
               <ArrowLeft className="mr-2 h-4 w-3" />
-              Back to Inventory
+              Back to Dashboard
             </Button>
           </div>
         </motion.div>

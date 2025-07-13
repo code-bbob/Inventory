@@ -28,6 +28,7 @@ import { useDispatch } from "react-redux"
 import { logout } from "../redux/accessSlice"
 import Sidebar from "../components/allsidebar"
 import ChartsDashboard from "../components/charts-dashboard"
+import { clearSelectedBranch } from "../utils/branchUtils"
 
 export default function AllLandingPage() {
   const api = useAxios()
@@ -42,6 +43,7 @@ export default function AllLandingPage() {
   const handleLogout = () => {
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
+    clearSelectedBranch()
     dispatch(logout())
     navigate("/login")
   }

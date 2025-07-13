@@ -219,7 +219,7 @@ export default function EMIDebtorsPage() {
             </div>
             <div className="flex gap-2 w-full sm:w-auto flex-col sm:flex-row">
               <Button
-                onClick={() => navigate("/inventory")}
+                onClick={() => navigate("/mobile/")}
                 variant="outline"
                 className="px-5 text-black border-white hover:bg-gray-700 hover:text-white w-full sm:w-auto"
               >

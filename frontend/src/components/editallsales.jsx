@@ -312,7 +312,7 @@ const handleNewProductVendorChange = (ids) => {
         sales_transaction_id: salesId,
         branch: branchId,
       });
-      navigate("/sales");
+      navigate("/sales/branch/" + branchId);
     } catch (err) {
       console.error(err);
       setError("Failed to process return. Please try again.");
@@ -353,7 +353,7 @@ const handleNewProductVendorChange = (ids) => {
         ? `alltransaction/salestransaction/${salesId}/?flag=${modifyStock}`
         : `alltransaction/salestransaction/${salesId}/`;
       await api.delete(url);
-      navigate("/sales");
+      navigate("/sales/branch/" + branchId);
     } catch (err) {
       console.error(err);
       setError("Failed to delete sales transaction. Please try again.");
@@ -463,7 +463,7 @@ const handleNewProductVendorChange = (ids) => {
         total_amount: totalAmount,
       };
       await api.patch(`alltransaction/salestransaction/${salesId}/`, payload);
-      navigate("/sales");
+      navigate("/sales/branch/" + branchId);
     } catch (err) {
       console.error(err);
       setError("Failed to update sales transaction. Please try again.");
@@ -480,7 +480,7 @@ const handleNewProductVendorChange = (ids) => {
       <div className="flex-1 p-4 lg:ml-64">
         <div className="flex justify-end mt-10 lg:mt-3">
           <Button
-            onClick={() => navigate("/sales")}
+            onClick={() => navigate("/sales/branch/" + branchId)}
             variant="outline"
             className="mb-4 w-full sm:w-auto px-5 text-black border-white hover:bg-gray-700 hover:text-white"
           >

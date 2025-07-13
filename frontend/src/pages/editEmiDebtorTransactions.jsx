@@ -169,7 +169,7 @@ export default function EditEMIDebtorTransaction() {
       <Sidebar className="hidden lg:block w-64 flex-shrink-0" />
       <div className="flex-grow p-4 lg:p-6 lg:ml-64 overflow-auto">
         <Button
-          onClick={() => navigate(`/emi-transactions/branch/${branchId}`)}
+          onClick={() => navigate(`/mobile/emi-transactions/branch/${branchId}`)}
           variant="outline"
           className="mb-6 px-4 py-2 text-black border-white hover:bg-gray-700 hover:text-white"
         >

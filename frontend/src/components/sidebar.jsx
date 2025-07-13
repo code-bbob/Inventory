@@ -7,19 +7,35 @@ import {
   Smartphone,
   ShoppingCart,
   TrendingUp,
+  TrendingDown,
+  Container,
   Zap,
   Shield,
   LogOut,
   BookUser,
   Menu,
-  X
+  X,
+  Building,
+  ChevronDown,
+  RefreshCw
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Link, useNavigate, useLocation } from "react-router-dom"
+import { useBranchManagement } from "../hooks/useBranchManagement"
 
 export default function Sidebar() {
   const navigate = useNavigate()
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
+  const [isChangingBranch, setIsChangingBranch] = useState(false)
+  
+  // Use branch management hook
+  const { navigateWithBranch, currentBranch, clearBranch } = useBranchManagement()
 
   const toggleSidebar = () => setIsOpen(!isOpen)
 
@@ -46,22 +62,55 @@ export default function Sidebar() {
   }
 
   const menuItems = [
-    { title: 'Inventory', icon: Smartphone, path: '/mobile/inventory' },
-    { title: 'Purchases', icon: ShoppingCart, path: '/mobile/purchases' },
-    { title: 'PurchaseReturns', icon: ShoppingCart, path: '/mobile/purchase-returns' },
-    { title: 'Sales', icon: TrendingUp, path: '/mobile/sales' },
-    { title: 'SalesReturns', icon: TrendingUp, path: '/mobile/sales-returns' },
-    { title: 'SalesReport', icon: TrendingUp, path: '/mobile/sales-report' }, // Open in new tab
-    { title: 'Schemes', icon: Zap, path: '/mobile/schemes' },
-    { title: 'Price Protection', icon: Shield, path: '/mobile/price-protection' },
-    { title: 'Vendors', icon: BookUser, path: '/mobile/vendors' },
-    { title: 'VendorTransactions', icon: BookUser, path: '/mobile/vendor-transactions' },
-    { title: 'Debtors', icon: BookUser, path: '/debtors' },
-    { title: 'DebtorTransactions', icon: BookUser, path: '/debtor-transactions' },
-    { title: 'EMI', icon: BookUser, path: '/mobile/emi' },
-    { title: 'EMI Transactions', icon: BookUser, path: '/mobile/emi-transactions' },
-    { title: 'AllInventory', icon: BookUser, path: '/' },
+    { title: 'Inventory', icon: Container, path: 'inventory' },
+    { title: 'Purchases', icon: ShoppingCart, path: 'purchases' },
+    { title: 'PurchaseReturn', icon: ShoppingCart, path: 'purchase-returns' },
+    { title: 'Sales', icon: TrendingUp, path: 'sales' },
+    { title: 'SalesReturn', icon: TrendingDown, path: 'sales-returns' },
+    { title: 'SalesReport', icon: TrendingUp, path: 'sales-report' }, // opens in new tab
+    { title: 'Schemes', icon: Zap, path: 'schemes' },
+    { title: 'Price Protection', icon: Shield, path: 'price-protection' },
+    { title: 'Vendors', icon: BookUser, path: 'vendors' },
+    { title: 'VendorTransactions', icon: BookUser, path: 'vendor-transactions' },
+    { title: 'Debtors', icon: BookUser, path: 'debtors', absolute: true }, // Goes to main debtors, not mobile
+    { title: 'DebtorTransactions', icon: BookUser, path: 'debtor-transactions', absolute: true }, // Goes to main, not mobile
+    { title: 'EMI', icon: BookUser, path: 'emi' },
+    { title: 'EMI Transactions', icon: BookUser, path: 'emi-transactions' },
+    { title: 'AllInventory', icon: BookUser, path: '/', absolute: true }, // Goes to main dashboard
   ]
+
+  const handleNavigation = (item) => {
+    setIsOpen(false)
+    if (item.absolute) {
+      // For absolute paths (like main dashboard or debtors), navigate directly
+      if (item.path === '/') {
+        navigate('/')
+      } else {
+        // For absolute paths that need branch, use navigateWithBranch without mobile prefix
+        navigateWithBranch(item.path)
+      }
+    } else {
+      // For mobile paths, use navigateWithBranch with mobile prefix
+      navigateWithBranch(item.path, true) // true indicates mobile
+    }
+  }
+
+  const handleChangeBranch = async () => {
+    console.log('Change branch clicked')
+    setIsChangingBranch(true)
+    try {
+      // Clear the selected branch to trigger branch selection
+      clearBranch()
+      console.log('Branch cleared, navigating to select-branch')
+      setIsOpen(false) // Close sidebar on mobile
+      // Navigate to branch selection page
+      navigate('/select-branch')
+    } catch (error) {
+      console.error('Error changing branch:', error)
+    } finally {
+      setIsChangingBranch(false)
+    }
+  }
 
   return (
     <>
@@ -85,7 +134,7 @@ export default function Sidebar() {
           >
             <div className="p-6 pt-16 lg:pt-6">
               <div 
-                className="text-2xl font-bold mb-6 text-white cursor-pointer" 
+                className="text-2xl font-bold text-center mb-3 text-white cursor-pointer" 
                 onClick={() => {
                   navigate('/mobile/')
                   setIsOpen(false)
@@ -93,20 +142,64 @@ export default function Sidebar() {
               >
                 Phone Inventory
               </div>
-              <nav className="space-y-2">
+              
+              {/* Enhanced Branch Selector
+              {currentBranch && (
+                <div className="mb-2">
+                  <div className="flex items-center space-x-2 p-3 bg-slate-700 rounded-lg">
+                    <Building className="h-5 w-5 text-purple-400" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-white">
+                        {currentBranch.name || `Branch ${currentBranch.id}`}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {currentBranch.enterprise_name || 'Current Branch'}
+                      </p>
+                    </div>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-white">
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            handleChangeBranch()
+                          }} 
+                          disabled={isChangingBranch}
+                          className="cursor-pointer"
+                        >
+                          <RefreshCw className={`mr-2 h-4 w-4 ${isChangingBranch ? 'animate-spin' : ''}`} />
+                          Change Branch
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              )}
+               */}
+              <nav className="space-y-">
                 {menuItems.map((item) => {
                   const isSalesReport = item.title === 'SalesReport'
                   if (isSalesReport) {
+                    // For sales report, we need to construct the full URL with branch
+                    const fullPath = currentBranch ? `/mobile/${item.path}/branch/${currentBranch.id}` : '#'
                     return (
                       <a
                         key={item.path}
-                        href={item.path}
+                        href={fullPath}
                         target="_blank"
                         rel="noopener noreferrer"
+                        className={`w-full justify-start text-slate-300 hover:text-white hover:bg-slate-700 ${!currentBranch ? 'opacity-50 pointer-events-none' : ''}`}
                       >
                         <Button
                           variant="ghost"
                           className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-700"
+                          disabled={!currentBranch}
                         >
                           <item.icon className="mr-2 h-4 w-4" />
                           {item.title}
@@ -115,17 +208,44 @@ export default function Sidebar() {
                     )
                   }
 
+                  // Construct proper URLs for navigation items
+                  let fullPath = '#'
+                  if (item.absolute) {
+                    if (item.path === '/') {
+                      fullPath = '/'
+                    } else {
+                      fullPath = currentBranch ? `/${item.path}/branch/${currentBranch.id}` : '#'
+                    }
+                  } else {
+                    fullPath = currentBranch ? `/mobile/${item.path}/branch/${currentBranch.id}` : '#'
+                  }
+
                   return (
-                    <Link key={item.path} to={item.path}>
+                    <a
+                      key={item.path}
+                      href={fullPath}
+                      className={`block ${!currentBranch && !item.absolute ? 'opacity-50 pointer-events-none' : ''}`}
+                      onClick={(e) => {
+                        // Only prevent default if not Ctrl+Click or middle click
+                        if (!e.ctrlKey && !e.metaKey && e.button !== 1) {
+                          e.preventDefault()
+                          handleNavigation(item)
+                        }
+                        // For Ctrl+Click, let the browser handle it naturally
+                      }}
+                    >
                       <Button
                         variant="ghost"
                         className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-700"
-                        onClick={() => setIsOpen(false)}
+                        disabled={!currentBranch && !item.absolute}
+                        asChild
                       >
-                        <item.icon className="mr-2 h-4 w-4" />
-                        {item.title}
+                        <div>
+                          <item.icon className="mr-2 h-4 w-4" />
+                          {item.title}
+                        </div>
                       </Button>
-                    </Link>
+                    </a>
                   )
                 })}
               </nav>

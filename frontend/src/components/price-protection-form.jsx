@@ -104,7 +104,7 @@ function PriceProtectionForm() {
     }
     finally{
       setSubLoading(false)
-      navigate('/mobile/price-protection/')
+      navigate('/mobile/price-protection/branch/' + branchId);
     }
   };
 

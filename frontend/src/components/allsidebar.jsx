@@ -14,14 +14,28 @@ import {
   LogOut,
   BookUser,
   Menu,
-  X
+  X,
+  Building,
+  ChevronDown,
+  RefreshCw
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Link, useNavigate, useLocation } from "react-router-dom"
+import { useBranchManagement } from "../hooks/useBranchManagement"
 
 export default function Sidebar() {
   const navigate = useNavigate()
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
+  const [isChangingBranch, setIsChangingBranch] = useState(false)
+  
+  // Use branch management hook
+  const { navigateWithBranch, currentBranch, clearBranch } = useBranchManagement()
 
   const toggleSidebar = () => setIsOpen(!isOpen)
 
@@ -48,20 +62,48 @@ export default function Sidebar() {
   }
 
   const menuItems = [
-    { title: 'Inventory', icon: Container, path: '/inventory' },
-    { title: 'Purchases', icon: ShoppingCart, path: '/purchases' },
-    { title: 'PurchaseReturn', icon: ShoppingCart, path: '/purchase-returns' },
-    { title: 'Sales', icon: TrendingUp, path: '/sales' },
-    { title: 'SalesReturn', icon: TrendingDown, path: '/sales-returns' },
-    { title: 'SalesReport', icon: TrendingUp, path: '/sales-report' }, // opens in new tab
-    { title: 'Staffs', icon: TrendingUp, path: '/staff' },
-    { title: 'StaffTransaction', icon: TrendingUp, path: '/staff-transactions' },
-    { title: 'Vendors', icon: BookUser, path: '/vendors' },
-    { title: 'VendorTransactions', icon: BookUser, path: '/vendor-transactions' },
-    { title: 'Debtors', icon: BookUser, path: '/debtors' },
-    { title: 'DebtorTransactions', icon: BookUser, path: '/debtor-transactions' },
+    { title: 'Inventory', icon: Container, path: 'inventory' },
+    { title: 'Purchases', icon: ShoppingCart, path: 'purchases' },
+    { title: 'PurchaseReturn', icon: ShoppingCart, path: 'purchase-returns' },
+    { title: 'Sales', icon: TrendingUp, path: 'sales' },
+    { title: 'SalesReturn', icon: TrendingDown, path: 'sales-returns' },
+    { title: 'SalesReport', icon: TrendingUp, path: 'sales-report' }, // opens in new tab
+    { title: 'Staffs', icon: TrendingUp, path: 'staff' },
+    { title: 'StaffTransaction', icon: TrendingUp, path: 'staff-transactions' },
+    { title: 'Vendors', icon: BookUser, path: 'vendors' },
+    { title: 'VendorTransactions', icon: BookUser, path: 'vendor-transactions' },
+    { title: 'Debtors', icon: BookUser, path: 'debtors' },
+    { title: 'DebtorTransactions', icon: BookUser, path: 'debtor-transactions' },
     { title: 'Phone Only', icon: Smartphone, path: '/mobile' },
   ]
+
+  const handleNavigation = (path) => {
+    setIsOpen(false)
+    if (path === '/mobile') {
+      // Mobile section doesn't need branch in URL for the landing page
+      navigate(path)
+    } else {
+      // Use branch management for other paths
+      navigateWithBranch(path)
+    }
+  }
+
+  const handleChangeBranch = async () => {
+    console.log('Change branch clicked')
+    setIsChangingBranch(true)
+    try {
+      // Clear the selected branch to trigger branch selection
+      clearBranch()
+      console.log('Branch cleared, navigating to select-branch')
+      setIsOpen(false) // Close sidebar on mobile
+      // Navigate to branch selection page
+      navigate('/select-branch')
+    } catch (error) {
+      console.error('Error changing branch:', error)
+    } finally {
+      setIsChangingBranch(false)
+    }
+  }
 
   return (
     <>
@@ -85,28 +127,72 @@ export default function Sidebar() {
           >
             <div className="p-6 pt-16 lg:pt-6">
               <div 
-                className="text-2xl font-bold mb-6 text-white cursor-pointer" 
+                className="text-2xl font-bold text-center mb-3 text-white cursor-pointer" 
                 onClick={() => {
                   navigate('/')
                   setIsOpen(false)
                 }}
               >
-                Inventory System
+                All Inventory
               </div>
-              <nav className="space-y-2">
+              
+              {/* Enhanced Branch Selector */}
+              {currentBranch && (
+                <div className="mb-2">
+                  <div className="flex items-center space-x-2 p-3 bg-slate-700 rounded-lg">
+                    <Building className="h-5 w-5 text-purple-400" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-white">
+                        {currentBranch.name || `Branch ${currentBranch.id}`}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {currentBranch.enterprise_name || 'Current Branch'}
+                      </p>
+                    </div>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-white">
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            handleChangeBranch()
+                          }} 
+                          disabled={isChangingBranch}
+                          className="cursor-pointer"
+                        >
+                          <RefreshCw className={`mr-2 h-4 w-4 ${isChangingBranch ? 'animate-spin' : ''}`} />
+                          Change Branch
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              )}
+              
+              <nav className="space-y-">
                 {menuItems.map((item) => {
                   const isSalesReport = item.title === 'SalesReport'
                   if (isSalesReport) {
+                    // For sales report, we need to construct the full URL with branch
+                    const fullPath = currentBranch ? `/${item.path}/branch/${currentBranch.id}` : '#'
                     return (
                       <a
                         key={item.path}
-                        href={item.path}
+                        href={fullPath}
                         target="_blank"
                         rel="noopener noreferrer"
+                        className={`w-full justify-start text-slate-300 hover:text-white hover:bg-slate-700 ${!currentBranch ? 'opacity-50 pointer-events-none' : ''}`}
                       >
                         <Button
                           variant="ghost"
                           className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-700"
+                          disabled={!currentBranch}
                         >
                           <item.icon className="mr-2 h-4 w-4" />
                           {item.title}
@@ -115,17 +201,35 @@ export default function Sidebar() {
                     )
                   }
 
+                  // For other items, create proper anchor tags that support Ctrl+Click
+                  const fullPath = item.path === '/mobile' ? '/mobile' : (currentBranch ? `/${item.path}/branch/${currentBranch.id}` : '#')
+                  
                   return (
-                    <Link key={item.path} to={item.path}>
+                    <a
+                      key={item.path}
+                      href={fullPath}
+                      className={`block ${!currentBranch && item.path !== '/mobile' ? 'opacity-50 pointer-events-none' : ''}`}
+                      onClick={(e) => {
+                        // Only prevent default if not Ctrl+Click or middle click
+                        if (!e.ctrlKey && !e.metaKey && e.button !== 1) {
+                          e.preventDefault()
+                          handleNavigation(item.path)
+                        }
+                        // For Ctrl+Click, let the browser handle it naturally
+                      }}
+                    >
                       <Button
                         variant="ghost"
                         className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-700"
-                        onClick={() => setIsOpen(false)}
+                        disabled={!currentBranch && item.path !== '/mobile'}
+                        asChild
                       >
-                        <item.icon className="mr-2 h-4 w-4" />
-                        {item.title}
+                        <div>
+                          <item.icon className="mr-2 h-4 w-4" />
+                          {item.title}
+                        </div>
                       </Button>
-                    </Link>
+                    </a>
                   )
                 })}
               </nav>

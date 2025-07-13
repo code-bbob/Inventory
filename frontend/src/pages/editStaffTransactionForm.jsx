@@ -27,7 +27,7 @@ import { Dialog, DialogTrigger,DialogContent,DialogHeader,DialogDescription,Dial
 function StaffTransactionEditForm() {
   const api = useAxios();
   const navigate = useNavigate();
-  const { id } = useParams(); // Get the transaction ID from the URL
+  const { id, branchId } = useParams(); // Get the transaction ID from the URL
 
   const [formData, setFormData] = useState({
     date: "",
@@ -46,7 +46,7 @@ function StaffTransactionEditForm() {
       setSubLoading(true);
       // Use DELETE to delete the transaction
       const response = await api.delete(`alltransaction/stafftransaction/${id}/`);
-      navigate("/staff-transactions");
+      navigate("/staff-transactions/branch/" + branchId);
     } catch (err) {
       console.error("Error deleting data:", err);
       setError("Failed to delete staff transaction. Please try again.");
@@ -102,7 +102,7 @@ function StaffTransactionEditForm() {
       // Use PATCH to update the transaction
       const response = await api.patch(`alltransaction/stafftransaction/${id}/`, formData);
       console.log("Response:", response.data);
-      navigate("/staff-transactions");
+      navigate("/staff-transactions/branch/" + branchId);
     } catch (err) {
       console.error("Error updating data:", err);
       setError("Failed to update staff transaction. Please try again.");
@@ -133,7 +133,7 @@ function StaffTransactionEditForm() {
       <div className="flex-grow p-4 lg:p-6 lg:ml-64 overflow-auto">
         <div className="max-w-4xl mx-auto">
           <Button
-            onClick={() => navigate("/staff-transactions")}
+            onClick={() => navigate("/staff-transactions/branch/" + branchId)}
             variant="outline"
             className="mb-6 px-4 py-2 text-black border-white hover:bg-gray-700 hover:text-white"
           >

@@ -146,7 +146,7 @@ export default function EditSchemeForm() {
       setSubLoading(true)
       const response = await api.patch(`transaction/scheme/${schemeId}/`, formData);
       console.log('Response:', response.data);
-      navigate('/mobile/schemes');
+      navigate('/mobile/schemes/branch/' + branchId);
     } catch (error) {
       console.error('Error updating data:', error);
       setError('Failed to update scheme. Please try again.');
@@ -159,7 +159,7 @@ export default function EditSchemeForm() {
   const handleDelete = async () => {
     try {
       await api.delete(`transaction/scheme/${schemeId}/`);
-      navigate('/mobile/schemes');
+      navigate('/mobile/schemes/branch/' + branchId);
     } catch (error) {
       console.error('Error deleting scheme:', error);
       setError('Failed to delete scheme. Please try again.');
@@ -227,7 +227,7 @@ export default function EditSchemeForm() {
           <div className='flex justify-end'>
 
           <Button
-            onClick={() => navigate('/mobile/schemes')}
+            onClick={() => navigate('/mobile/schemes/branch/' + branchId)}
             variant="outline"
             className="mb-6 px-4 py-2 text-black border-white hover:bg-gray-700 hover:text-white"
             >

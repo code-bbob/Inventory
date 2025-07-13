@@ -116,7 +116,7 @@ export default function SchemeForm() {
     setSubLoading(true);
     try {
       await api.post('transaction/scheme/', formData);
-      navigate('/mobile/schemes/');
+      navigate('/mobile/schemes/branch/' + branchId);
     } catch (err) {
       console.error(err);
     } finally {

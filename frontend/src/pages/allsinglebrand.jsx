@@ -311,7 +311,7 @@ export default function AllBrandProducts() {
             </div>
             <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 w-full sm:w-auto">
               <Button
-                onClick={() => navigate("/inventory")}
+                onClick={() => navigate("/inventory/branch/" + branchId)}
                 variant="outline"
                 className="w-full sm:w-auto px-5 text-black border-white hover:bg-gray-700 hover:text-white"
               >

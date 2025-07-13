@@ -246,7 +246,7 @@ function SalesTransactionForm() {
 
       const res = await api.post("transaction/salestransaction/", payload);
       console.log("Response:", res.data);
-      navigate("/mobile/sales");
+      navigate("/mobile/sales/branch/" + branchId);
     } catch (err) {
       console.error("Error posting data:", err);
       setError("Submission failed");

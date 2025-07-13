@@ -309,7 +309,7 @@ export default function EditSalesTransactionForm() {
         total_amount: totalAmount,
       };
       await api.patch(`transaction/salestransaction/${salesId}/`, payload);
-      navigate('/mobile/sales');
+      navigate('/mobile/sales/branch/' + branchId);
     } catch {
       setError('Failed to update transaction');
     } finally {
@@ -320,7 +320,7 @@ export default function EditSalesTransactionForm() {
   const handleDelete = async () => {
     try {
       await api.delete(`transaction/salestransaction/${salesId}/`);
-      navigate('/mobile/sales');
+      navigate('/mobile/sales/branch/' + branchId);
     } catch {
       setError('Failed to delete transaction');
     }
@@ -351,7 +351,7 @@ export default function EditSalesTransactionForm() {
       setError('Failed to process return. Please try again.');
     } finally {
       setSubLoading(false);
-      navigate('/mobile/sales');
+      navigate('/mobile/sales/branch/' + branchId);
     }
   };
 
@@ -389,7 +389,7 @@ export default function EditSalesTransactionForm() {
       <Sidebar />
       <div className="flex-1 p-6 lg:ml-64">
         <Button
-          onClick={() => navigate('/mobile/sales')}
+          onClick={() => navigate('/mobile/sales/branch/' + branchId)}
           variant="outline"
           className="mb-4 px-4 py-2 text-black border-white hover:bg-gray-700 hover:text-white"
         >

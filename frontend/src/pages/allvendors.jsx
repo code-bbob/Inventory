@@ -200,11 +200,11 @@ export default function AllVendorPage() {
               />
             </div>
             <Button
-              onClick={() => navigate("/vendors")}
+              onClick={() => navigate("/" )}
               variant="outline"
               className="w-full sm:w-auto px-5 text-slate-900 border-white hover:bg-gray-500"
             >
-              <ArrowLeft className="mr-2 h-4 w-3" /> Back to Brands
+              <ArrowLeft className="mr-2 h-4 w-3" /> Back to Dashboard
             </Button>
             <Button
               onClick={() => setIsDeleteDialogOpen(true)}

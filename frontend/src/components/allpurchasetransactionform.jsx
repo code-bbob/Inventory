@@ -337,7 +337,7 @@ const handleNewProductVendorChange = (ids) => {
         submissionData
       );
       console.log("Response:", response.data);
-      navigate("/purchases");
+      navigate("/purchases/branch/" + branchId);
     } catch (error) {
       console.error("Error posting data:", error);
       setError("Failed to submit purchase transaction. Please try again.");

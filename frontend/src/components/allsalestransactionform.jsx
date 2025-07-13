@@ -280,7 +280,7 @@ const handleNewProductVendorChange = (ids) => {
       );
       console.log("Response:", response.data);
       // navigate('/invoice/' + response.data.id);
-      navigate("/sales");
+      navigate("/sales/branch/" + branchId);
     } catch (error) {
       console.error("Error posting data:", error);
     } finally {

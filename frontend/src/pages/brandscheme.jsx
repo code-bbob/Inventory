@@ -117,7 +117,7 @@ export default function BrandSchemePage() {
           >
             <h1 className="text-3xl lg:text-4xl font-bold  text-white">Brand Schemes</h1>
             <Button
-              onClick={() => navigate('/mobile/schemes')}
+              onClick={() => navigate('/mobile/schemes/branch/' + branchId)}
               variant="outline"
               className="w-full lg:w-auto px-5 text-black border-white hover:bg-gray-700 hover:text-white"
             >
