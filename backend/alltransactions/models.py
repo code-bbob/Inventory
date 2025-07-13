@@ -6,7 +6,7 @@ from django.db import transaction
 class Vendor(models.Model):
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=10,null=True,blank=True)
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+    # brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     due = models.FloatField(null=True,blank=True)
     enterprise = models.ForeignKey(Enterprise, on_delete=models.CASCADE,related_name='all_vendor')

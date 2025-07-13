@@ -23,6 +23,7 @@ class Product(models.Model):
     stock = models.IntegerField(null=True,blank=True,default=0)
     count = models.IntegerField(null=True,blank=True,default=0)
     # vendor = models.ForeignKey('alltransactions.Vendor', on_delete=models.CASCADE,related_name='all_product')
+    vendor = models.ManyToManyField('alltransactions.Vendor', related_name='all_product', blank=True)
     enterprise = models.ForeignKey('enterprise.Enterprise', on_delete=models.CASCADE,related_name='all_product')
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE,related_name='all_product', null=True, blank=True)
     def __str__(self):

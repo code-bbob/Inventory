@@ -51,7 +51,7 @@ function AllPurchaseTransactionForm() {
   const api = useAxios();
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split("T")[0],
-    purchase: [{ product: "", unit_price: "", quantity:"", total_price:"" }],
+    purchase: [{ product: "", unit_price: "", quantity: "", total_price: "" }],
     branch: branchId,
     vendor: "",
     method: "credit",
@@ -67,8 +67,20 @@ function AllPurchaseTransactionForm() {
   const [showNewProductDialog, setShowNewProductDialog] = useState(false);
   const [showNewVendorDialog, setShowNewVendorDialog] = useState(false);
   const [showNewBrandDialog, setShowNewBrandDialog] = useState(false);
-  const [newProductData, setNewProductData] = useState({ name: "", brand: "", cost_price:"",selling_price:"" , branch: branchId });
-  const [newVendorData, setNewVendorData] = useState({ name: "", brand: "",due:0 ,branch:branchId});
+  const [newProductData, setNewProductData] = useState({
+    name: "",
+    brand: "",
+    cost_price: "",
+    selling_price: "",
+    branch: branchId,
+    vendor: [], // Changed to array for multiple vendors
+  });
+  const [newVendorData, setNewVendorData] = useState({
+    name: "",
+    brand: "",
+    due: 0,
+    branch: branchId,
+  });
   const [newBrandName, setNewBrandName] = useState("");
   const [openProduct, setOpenProduct] = useState(
     Array(formData.purchase.length).fill(false)
@@ -83,14 +95,19 @@ function AllPurchaseTransactionForm() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsResponse, vendorsResponse, brandsResponse, branchResponse, userBranchResponse] =
-          await Promise.all([
-            api.get("allinventory/product/branch/" + branchId + "/"),
-            api.get("alltransaction/vendor/branch/" + branchId + "/"),
-            api.get("allinventory/brand/branch/" + branchId + "/"),
-            api.get("enterprise/branch/" + branchId + "/"),
-            api.get("enterprise/getbranch/"),
-          ]);
+        const [
+          productsResponse,
+          vendorsResponse,
+          brandsResponse,
+          branchResponse,
+          userBranchResponse,
+        ] = await Promise.all([
+          api.get("allinventory/product/branch/" + branchId + "/"),
+          api.get("alltransaction/vendor/branch/" + branchId + "/"),
+          api.get("allinventory/brand/branch/" + branchId + "/"),
+          api.get("enterprise/branch/" + branchId + "/"),
+          api.get("enterprise/getbranch/"),
+        ]);
         setProducts(productsResponse.data);
         setVendors(vendorsResponse.data);
         setBrands(brandsResponse.data);
@@ -107,78 +124,84 @@ function AllPurchaseTransactionForm() {
     fetchData();
   }, []);
 
-  
-    // Keydown handling for product scanning
-    const [currentWord, setCurrentWord] = useState('');
-    const handleKeyDown = (e) => {
-      if (e.key === 'Enter') {
-        const scannedCode = currentWord.slice(0, -1);
-        console.log("Word is:", scannedCode);
-        const matchingProduct = products.find(product => product.uid === scannedCode);
-        console.log("Matching product:", matchingProduct);
-  
-        if (matchingProduct) {
-          const productIdStr = matchingProduct.id.toString();
-          
-          // First, check if a sale already exists for this product
-          const existingPurchaseIndex = formData.purchase.findIndex(purchase => purchase.product === productIdStr);
-          
-          if (existingPurchaseIndex !== -1) {
-            // Increase quantity for the existing sale
+  // Keydown handling for product scanning
+  const [currentWord, setCurrentWord] = useState("");
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      const scannedCode = currentWord.slice(0, -1);
+      console.log("Word is:", scannedCode);
+      const matchingProduct = products.find(
+        (product) => product.uid === scannedCode
+      );
+      console.log("Matching product:", matchingProduct);
+
+      if (matchingProduct) {
+        const productIdStr = matchingProduct.id.toString();
+
+        // First, check if a sale already exists for this product
+        const existingPurchaseIndex = formData.purchase.findIndex(
+          (purchase) => purchase.product === productIdStr
+        );
+
+        if (existingPurchaseIndex !== -1) {
+          // Increase quantity for the existing sale
+          const updatedPurchase = [...formData.purchase];
+          const existingPurchase = updatedPurchase[existingPurchaseIndex];
+          const currentQuantity = parseInt(existingPurchase.quantity, 10) || 0;
+          const newQuantity = currentQuantity + 1;
+          existingPurchase.quantity = newQuantity;
+          existingPurchase.total_price =
+            newQuantity * matchingProduct.cost_price;
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            purchase: updatedPurchase,
+          }));
+        } else {
+          // No existing sale for this product; check for an empty sale entry first
+          const emptyPurchaseIndex = formData.purchase.findIndex(
+            (purchase) => !purchase.product
+          );
+          if (emptyPurchaseIndex !== -1) {
             const updatedPurchase = [...formData.purchase];
-            const existingPurchase = updatedPurchase[existingPurchaseIndex];
-            const currentQuantity = parseInt(existingPurchase.quantity, 10) || 0;
-            const newQuantity = currentQuantity + 1;
-            existingPurchase.quantity = newQuantity;
-            existingPurchase.total_price = newQuantity * matchingProduct.cost_price;
+            updatedPurchase[emptyPurchaseIndex] = {
+              product: productIdStr,
+              unit_price: matchingProduct.cost_price,
+              quantity: 1,
+              total_price: matchingProduct.cost_price,
+            };
             setFormData((prevFormData) => ({
               ...prevFormData,
-              purchase: updatedPurchase
+              purchase: updatedPurchase,
             }));
           } else {
-            // No existing sale for this product; check for an empty sale entry first
-            const emptyPurchaseIndex = formData.purchase.findIndex(purchase => !purchase.product);
-            if (emptyPurchaseIndex !== -1) {
-              const updatedPurchase = [...formData.purchase];
-              updatedPurchase[emptyPurchaseIndex] = {
-                product: productIdStr,
-                unit_price: matchingProduct.cost_price,
-                quantity: 1,
-                total_price: matchingProduct.cost_price
-              };
-              setFormData((prevFormData) => ({
-                ...prevFormData,
-                purchase: updatedPurchase
-              }));
-            } else {
-              // Neither an existing sale nor an empty sale found, so add a new sale entry
-              const newPurchase = {
-                product: productIdStr,
-                unit_price: matchingProduct.cost_price,
-                quantity: 1,
-                total_price: matchingProduct.cost_price
-              };
-              setFormData((prevFormData) => ({
-                ...prevFormData,
-                purchase: [...prevFormData.purchase, newPurchase]
-              }));
-            }
+            // Neither an existing sale nor an empty sale found, so add a new sale entry
+            const newPurchase = {
+              product: productIdStr,
+              unit_price: matchingProduct.cost_price,
+              quantity: 1,
+              total_price: matchingProduct.cost_price,
+            };
+            setFormData((prevFormData) => ({
+              ...prevFormData,
+              purchase: [...prevFormData.purchase, newPurchase],
+            }));
           }
-        } else {
-          console.log("Product not found");
         }
-        setCurrentWord('');
       } else {
-        setCurrentWord((prev) => prev + e.key);
+        console.log("Product not found");
       }
+      setCurrentWord("");
+    } else {
+      setCurrentWord((prev) => prev + e.key);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  
-    useEffect(() => {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => {
-        window.removeEventListener('keydown', handleKeyDown);
-      };
-    }, [currentWord, products]);
+  }, [currentWord, products]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -199,7 +222,7 @@ function AllPurchaseTransactionForm() {
     if (unit_price && quantity) {
       newPurchase[index].total_price = calculateTotal(unit_price, quantity);
     }
-  
+
     setFormData({ ...formData, purchase: newPurchase });
   };
 
@@ -219,6 +242,15 @@ function AllPurchaseTransactionForm() {
     setOpenProduct(newOpenProduct);
   };
 
+
+  // add this alongside your other handlers
+const handleNewProductVendorChange = (ids) => {
+  console.log("Selected Vendor IDs:", ids);
+  setNewProductData(prev => ({ ...prev, vendor: ids }));
+  console.log("New Product Data after vendor change:", newProductData);
+};
+
+
   const handleVendorChange = (value) => {
     if (value === "new") {
       setShowNewVendorDialog(true);
@@ -231,10 +263,17 @@ function AllPurchaseTransactionForm() {
         (vendor) => vendor.id.toString() === value
       );
       if (selectedVendor) {
-        const filteredProducts = products.filter(
-          (product) => product.brand === selectedVendor.brand
-        );
-        setFilteredProducts(filteredProducts);
+        const filtered = products.filter((prod) => {
+          console.log(prod)
+          if (Array.isArray(prod.vendor)) {
+            return prod.vendor.includes(selectedVendor.id);
+          }
+          if (Array.isArray(prod.vendors)) {
+            return prod.vendors.some((v) => v.id === selectedVendor.id);
+          }
+          return prod.vendor === selectedVendor.id;
+        });
+        setFilteredProducts(filtered);
       }
     }
     setOpenVendor(false);
@@ -275,10 +314,7 @@ function AllPurchaseTransactionForm() {
   const handleAddPurchase = () => {
     setFormData((prevState) => ({
       ...prevState,
-      purchase: [
-        ...prevState.purchase,
-        { product: "", unit_price: "" },
-      ],
+      purchase: [...prevState.purchase, { product: "", unit_price: "" }],
     }));
     setOpenProduct((prevState) => [...prevState, false]);
   };
@@ -316,7 +352,13 @@ function AllPurchaseTransactionForm() {
       const response = await api.post("allinventory/product/", newProductData);
       console.log("New Product Added:", response.data);
       setProducts((prevProducts) => [...prevProducts, response.data]);
-      setNewProductData({ name: "", brand: "", cost_price:"", selling_price:"" , branch: branchId });
+      setNewProductData({
+        name: "",
+        brand: "",
+        cost_price: "",
+        selling_price: "",
+        branch: branchId,
+      });
       setShowNewProductDialog(false);
       setFilteredProducts((prevFilteredProducts) => [
         ...prevFilteredProducts,
@@ -338,13 +380,12 @@ function AllPurchaseTransactionForm() {
         ...prevState,
         vendor: response.data.id.toString(),
       }));
-      setNewVendorData({ name: "", brand: "" , branch: branchId , due:0});
+      setNewVendorData({ name: "", brand: "", branch: branchId, due: 0 });
       setShowNewVendorDialog(false);
       const filteredProducts = products.filter(
-          (product) => product.brand === response.data.brand
-        );
-        setFilteredProducts(filteredProducts);
-    
+        (product) => product.brand === response.data.brand
+      );
+      setFilteredProducts(filteredProducts);
     } catch (error) {
       console.error("Error adding vendor:", error);
       setError("Failed to add new vendor. Please try again.");
@@ -678,10 +719,13 @@ function AllPurchaseTransactionForm() {
                         </PopoverContent>
                       </Popover>
                     </div>
-        
+
                     <div className="flex flex-col">
-                      <Label htmlFor={`price-${index}`} className="text-sm font-medium text-white mb-2">
-                        Unit Price 
+                      <Label
+                        htmlFor={`price-${index}`}
+                        className="text-sm font-medium text-white mb-2"
+                      >
+                        Unit Price
                       </Label>
                       <Input
                         type="number"
@@ -695,9 +739,12 @@ function AllPurchaseTransactionForm() {
                         required
                       />
                     </div>
-        
+
                     <div className="flex flex-col">
-                      <Label htmlFor={`quantity-${index}`} className="text-sm font-medium text-white mb-2">
+                      <Label
+                        htmlFor={`quantity-${index}`}
+                        className="text-sm font-medium text-white mb-2"
+                      >
                         Quantity
                       </Label>
                       <Input
@@ -712,22 +759,28 @@ function AllPurchaseTransactionForm() {
                         required
                       />
                     </div>
-        
+
                     <div className="flex flex-col">
-                      <Label htmlFor={`total-${index}`} className="text-sm font-medium text-white mb-2">
-                        Total Price 
+                      <Label
+                        htmlFor={`total-${index}`}
+                        className="text-sm font-medium text-white mb-2"
+                      >
+                        Total Price
                       </Label>
                       <Input
                         type="number"
                         id={`total-${index}`}
                         name="total_price"
-                        value={calculateTotal(purchase.unit_price, purchase.quantity)}
+                        value={calculateTotal(
+                          purchase.unit_price,
+                          purchase.quantity
+                        )}
                         onChange={(e) => handlePurchaseChange(index, e)}
                         className="bg-slate-600 border-slate-500 text-white focus:ring-purple-500 focus:border-purple-500"
                       />
                     </div>
                   </div>
-        
+
                   {index > 0 && (
                     <Button
                       type="button"
@@ -743,25 +796,40 @@ function AllPurchaseTransactionForm() {
                 </div>
               ))}
               <div className="flex flex-col">
-                <Label htmlFor="method" className="text-sm font-medium text-white mb-2">
+                <Label
+                  htmlFor="method"
+                  className="text-sm font-medium text-white mb-2"
+                >
                   Payment Method
                 </Label>
-                <Select onValueChange={handleMethodChange} value={formData.method}>
+                <Select
+                  onValueChange={handleMethodChange}
+                  value={formData.method}
+                >
                   <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white">
                     <SelectValue placeholder="Select payment method" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-slate-700">
-                    <SelectItem value="cash" className="text-white">Cash</SelectItem>
-                    <SelectItem value="cheque" className="text-white">Cheque</SelectItem>
-                    <SelectItem value="credit" className="text-white">Credit</SelectItem>
+                    <SelectItem value="cash" className="text-white">
+                      Cash
+                    </SelectItem>
+                    <SelectItem value="cheque" className="text-white">
+                      Cheque
+                    </SelectItem>
+                    <SelectItem value="credit" className="text-white">
+                      Credit
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-        
+
               {formData.method === "cheque" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex flex-col">
-                    <Label htmlFor="cheque_number" className="text-sm font-medium text-white mb-2">
+                    <Label
+                      htmlFor="cheque_number"
+                      className="text-sm font-medium text-white mb-2"
+                    >
                       Cheque Number
                     </Label>
                     <Input
@@ -775,7 +843,10 @@ function AllPurchaseTransactionForm() {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <Label htmlFor="cashout_date" className="text-sm font-medium text-white mb-2">
+                    <Label
+                      htmlFor="cashout_date"
+                      className="text-sm font-medium text-white mb-2"
+                    >
                       Cheque Date
                     </Label>
                     <Input
@@ -790,7 +861,7 @@ function AllPurchaseTransactionForm() {
                   </div>
                 </div>
               )}
-        
+
               <Button
                 type="button"
                 onClick={handleAddPurchase}
@@ -799,7 +870,7 @@ function AllPurchaseTransactionForm() {
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Add Another Purchase
               </Button>
-        
+
               <Button
                 type="submit"
                 disabled={subLoading}
@@ -808,7 +879,7 @@ function AllPurchaseTransactionForm() {
                 Submit Purchase Transaction
               </Button>
             </form>
-        
+
             {/* New Product Dialog */}
             <NewProductDialog
               open={showNewProductDialog}
@@ -816,6 +887,7 @@ function AllPurchaseTransactionForm() {
               newProductData={newProductData}
               handleNewProductChange={handleNewProductChange}
               handleNewProductBrandChange={handleNewProductBrandChange}
+              handleNewProductVendorChange={handleNewProductVendorChange}
               handleAddProduct={handleAddProduct}
               brands={brands}
               openBrand={openBrand}
@@ -823,8 +895,9 @@ function AllPurchaseTransactionForm() {
               branches={branch}
               userBranch={userBranch}
               selectedBranch={formData.branch}
+              vendors={vendors}
             />
-        
+
             {/* New Vendor and New Brand dialogs remain unchanged */}
             <Dialog
               open={showNewVendorDialog}
@@ -864,84 +937,12 @@ function AllPurchaseTransactionForm() {
                     <Input
                       id="newVendorDue"
                       name="due"
-                      type = "number"
+                      type="number"
                       value={newVendorData.due}
                       onChange={handleNewVendorChange}
                       className="col-span-3 bg-slate-700 border-slate-600 text-white"
                       placeholder="Enter vendor due"
                     />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label
-                      htmlFor="newVendorBrand"
-                      className="text-right text-white"
-                    >
-                      Brand
-                    </Label>
-                    <div className="col-span-3">
-                      <Popover open={openBrand} onOpenChange={setOpenBrand}>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={openBrand}
-                            className="w-full justify-between bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
-                          >
-                            {newVendorData.brand
-                              ? brands.find(
-                                  (brand) =>
-                                    brand.id.toString() === newVendorData.brand
-                                )?.name
-                              : "Select a brand..."}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-full p-0 bg-slate-700 border-slate-600">
-                          <Command className="bg-slate-700 border-slate-600">
-                            <CommandInput
-                              placeholder="Search brand..."
-                              className="bg-slate-700 text-white"
-                            />
-                            <CommandList>
-                              <CommandEmpty>No brand found.</CommandEmpty>
-                              <CommandGroup>
-                                {brands.map((brand) => (
-                                  <CommandItem
-                                    key={brand.id}
-                                    onSelect={() =>
-                                      handleNewVendorBrandChange(
-                                        brand.id.toString()
-                                      )
-                                    }
-                                    className="text-white hover:bg-slate-600"
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        newVendorData.brand ===
-                                          brand.id.toString()
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                    {brand.name}
-                                  </CommandItem>
-                                ))}
-                                <CommandItem
-                                  onSelect={() =>
-                                    handleNewVendorBrandChange("new")
-                                  }
-                                  className="text-white hover:bg-slate-600"
-                                >
-                                  <PlusCircle className="mr-2 h-4 w-4" />
-                                  Add a new brand
-                                </CommandItem>
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
                   </div>
                 </div>
                 <DialogFooter>
@@ -955,7 +956,7 @@ function AllPurchaseTransactionForm() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-        
+
             <Dialog
               open={showNewBrandDialog}
               onOpenChange={setShowNewBrandDialog}

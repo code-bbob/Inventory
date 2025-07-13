@@ -31,23 +31,56 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const NewProductDialog = ({
+import ReactSelect from "react-select";
+
+export default function NewProductDialog({
   open,
   setOpen,
   newProductData,
   handleNewProductChange,
   handleNewProductBrandChange,
+  handleNewProductVendorChange,   // new prop
   handleAddProduct,
   brands,
   openBrand,
   setOpenBrand,
   branches,
   userBranch,
-  selectedBranch
-}) => {
-  console.log("Brands:", brands);
-  console.log("new product dialog:", newProductData);
-  
+  selectedBranch,
+  vendors                        // new prop: array of { id, name }
+}) {
+  // Tailwind‑themed classNames for react‑select
+const vendorSelectClasses = {
+  control: ({ isFocused }) =>
+    cn(
+      "bg-slate-700 border border-slate-600 rounded px-2 py-1",
+      isFocused && "ring-2 ring-purple-500"
+    ),
+  input: () => "[&_input:focus]:ring-0",
+  placeholder: () => "text-sm text-slate-500",   // ← add this line
+  menu: () => "bg-slate-700 border border-slate-600 rounded mt-1 z-50",
+  option: ({ isFocused, isSelected }) =>
+    cn(
+      "px-3 py-2 cursor-pointer",
+      isFocused && "bg-slate-600",
+      isSelected && "bg-purple-600 text-white"
+    ),
+};
+
+
+  // Map your vendors into react-select format
+  const vendorOptions = vendors?.map((v) => ({
+    value: v.id,
+    label: v.name,
+  }));
+
+  console.log("Vendor Options:", vendorOptions);
+
+  // Derive the currently selected options from newProductData.vendor_ids
+  const vendorValue = vendorOptions?.filter((o) =>
+    newProductData.vendor?.includes(o.value)
+  );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px] bg-slate-800 text-white">
@@ -58,7 +91,7 @@ const NewProductDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          {/* Product Name */}
+          {/* Name */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductName" className="text-right text-white">
               Name
@@ -72,6 +105,7 @@ const NewProductDialog = ({
               placeholder="Enter product name"
             />
           </div>
+
           {/* Cost Price */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductCostPrice" className="text-right text-white">
@@ -86,6 +120,7 @@ const NewProductDialog = ({
               placeholder="Enter cost price"
             />
           </div>
+
           {/* Selling Price */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductSellingPrice" className="text-right text-white">
@@ -100,6 +135,7 @@ const NewProductDialog = ({
               placeholder="Enter selling price"
             />
           </div>
+
           {/* Brand Select */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductBrand" className="text-right text-white">
@@ -115,9 +151,7 @@ const NewProductDialog = ({
                     className="w-full justify-between bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
                   >
                     {newProductData.brand
-                      ? brands.find(
-                          (brand) => brand.id.toString() === newProductData.brand
-                        )?.name
+                      ? brands.find((b) => b.id.toString() === newProductData.brand)?.name
                       : "Select a brand..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -131,13 +165,10 @@ const NewProductDialog = ({
                     <CommandList>
                       <CommandEmpty>No brand found.</CommandEmpty>
                       <CommandGroup>
-                        {brands
-      .map((brand) => (
+                        {brands.map((brand) => (
                           <CommandItem
                             key={brand.id}
-                            onSelect={() =>
-                              handleNewProductBrandChange(brand.id.toString())
-                            }
+                            onSelect={() => handleNewProductBrandChange(brand.id.toString())}
                             className="text-white hover:bg-slate-600"
                           >
                             <Check
@@ -165,6 +196,7 @@ const NewProductDialog = ({
               </Popover>
             </div>
           </div>
+
           {/* Branch Select */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductBranch" className="text-right text-white">
@@ -182,20 +214,50 @@ const NewProductDialog = ({
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
                   {userBranch && Object.keys(userBranch).length > 0 ? (
-                    <SelectItem value={userBranch.id.toString()} className="text-white">
+                    <SelectItem
+                      value={userBranch.id.toString()}
+                      className="text-white"
+                    >
                       {userBranch.name}
                     </SelectItem>
                   ) : (
-                    
-                      <SelectItem value={branches?.id?.toString()} className="text-white">
-                        {branches?.name}
-                      </SelectItem>
+                    <SelectItem
+                      value={branches?.id?.toString()}
+                      className="text-white"
+                    >
+                      {branches?.name}
+                    </SelectItem>
                   )}
                 </SelectContent>
               </Select>
             </div>
           </div>
+
+          {/* ← New: Vendors Multi‑Select → */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="newProductVendors" className="text-right text-white">
+              Vendors
+            </Label>
+            <div className="col-span-3">
+              <ReactSelect
+                id="newProductVendors"
+                isMulti
+                unstyled
+                options={vendorOptions}
+                value={vendorValue}
+                onChange={(selected) =>
+                  handleNewProductVendorChange(
+                    selected ? selected.map((o) => o.value) : []
+                  )
+                }
+                classNames={vendorSelectClasses}
+                className="text-white"
+                placeholder="Select one or more vendors..."
+              />
+            </div>
+          </div>
         </div>
+
         <DialogFooter>
           <Button
             type="button"
@@ -208,6 +270,4 @@ const NewProductDialog = ({
       </DialogContent>
     </Dialog>
   );
-};
-
-export default NewProductDialog;
+}

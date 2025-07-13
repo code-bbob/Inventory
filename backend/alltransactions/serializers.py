@@ -7,13 +7,12 @@ from alltransactions.models import Staff,StaffTransactions, Debtor, DebtorTransa
 
 
 class VendorSerializer(serializers.ModelSerializer):
-    brand_name = serializers.SerializerMethodField(read_only=True)
+    # brand_name = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Vendor
         fields = '__all__'
 
-    def get_brand_name(self, obj):
-        return obj.brand.name if obj.brand else None
+
     
 class PurchaseSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)

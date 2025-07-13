@@ -67,6 +67,7 @@ function AllSalesTransactionForm() {
   const [products, setProducts] = useState([]);
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [vendors, setVendors] = useState([]); // New state for vendors
   const [error, setError] = useState(null);
   const [showNewProductDialog, setShowNewProductDialog] = useState(false);
   const [showNewBrandDialog, setShowNewBrandDialog] = useState(false);
@@ -103,17 +104,19 @@ function AllSalesTransactionForm() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsResponse, brandsResponse, nextBillResponse, debtorResponse] =
+        const [productsResponse, brandsResponse, nextBillResponse, debtorResponse, vendorResponse] =
           await Promise.all([
             api.get("allinventory/product/branch/" + branchId + "/"),
             api.get("allinventory/brand/branch/" + branchId + "/"),
             api.get("alltransaction/next-bill-no/"),
             api.get("alltransaction/debtors/branch/" + branchId + "/"), // Fetching debtors
+            api.get("alltransaction/vendor/branch/" + branchId + "/"), // Fetching vendors
           ]);
         setProducts(productsResponse.data);
         setBrands(brandsResponse.data);
         setNextBill(nextBillResponse.data.bill_no);
         setDebtors(debtorResponse.data); // Setting debtors data
+        setVendors(vendorResponse.data); // Setting vendors data
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -177,6 +180,12 @@ function AllSalesTransactionForm() {
     }
     setFormData({ ...formData, sales: newSales });
   };
+
+  // add this alongside your other handlers
+const handleNewProductVendorChange = (ids) => {
+  setNewProductData(prev => ({ ...prev, vendor: ids }));
+};
+
 
   // Updated handleProductChange so that unit price is automatically set
   const handleProductChange = (index, value) => {
@@ -977,12 +986,15 @@ function AllSalesTransactionForm() {
               newProductData={newProductData}
               handleNewProductChange={handleNewProductChange}
               handleNewProductBrandChange={handleNewProductBrandChange}
+              handleNewProductVendorChange={handleNewProductVendorChange}
               handleAddProduct={handleAddProduct}
               brands={brands}
               openBrand={openBrand} // You can manage openBrand state within the dialog if needed
               setOpenBrand={setOpenBrand}
               branches={branch}
               userBranch={userBranch}
+              selectedBranch={branchId}
+              vendors={vendors} // Pass vendors to the dialog
             />
 
             <Dialog

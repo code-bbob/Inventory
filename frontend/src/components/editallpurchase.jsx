@@ -181,6 +181,12 @@ function EditAllPurchaseTransactionForm() {
     setFormData({ ...formData, method: value });
   };
 
+  // add this alongside your other handlers
+const handleNewProductVendorChange = (ids) => {
+  setNewProductData(prev => ({ ...prev, vendor: ids }));
+};
+
+
   const handlePurchaseChange = (index, e) => {
     const { name, value } = e.target;
     const newPurchase = [...formData.purchase];
@@ -221,9 +227,16 @@ function EditAllPurchaseTransactionForm() {
         (vendor) => vendor.id.toString() === value
       );
       if (selectedVendor) {
-        const filtered = products.filter(
-          (product) => product.brand === selectedVendor.brand
-        );
+        const filtered = products.filter((prod) => {
+          console.log(prod)
+          if (Array.isArray(prod.vendor)) {
+            return prod.vendor.includes(selectedVendor.id);
+          }
+          if (Array.isArray(prod.vendors)) {
+            return prod.vendors.some((v) => v.id === selectedVendor.id);
+          }
+          return prod.vendor === selectedVendor.id;
+        });
         setFilteredProducts(filtered);
       }
     }
@@ -825,6 +838,7 @@ function EditAllPurchaseTransactionForm() {
               newProductData={newProductData}
               handleNewProductChange={handleNewProductChange}
               handleNewProductBrandChange={handleNewProductBrandChange}
+              handleNewProductVendorChange={handleNewProductVendorChange}
               handleAddProduct={handleAddProduct}
               brands={brands}
               openBrand={openBrand}
@@ -832,6 +846,7 @@ function EditAllPurchaseTransactionForm() {
               branches={branch}
               userBranch={userBranch}
               selectedBranch={formData.branch}
+              vendors={vendors}
             />
 
             {/* Add New Vendor Dialog */}

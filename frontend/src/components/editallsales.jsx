@@ -80,6 +80,7 @@ export default function EditAllSalesTransactionForm() {
   const [showNewBrandDialog, setShowNewBrandDialog] = useState(false);
   const [showNewDebtorDialog, setShowNewDebtorDialog] = useState(false);
 
+  const [vendors, setVendors] = useState([]); // New vendors state
   // New entity data
   const [newProductData, setNewProductData] = useState({ name: "", brand: "" });
   const [newBrandName, setNewBrandName] = useState("");
@@ -112,15 +113,17 @@ export default function EditAllSalesTransactionForm() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [prodRes, brandRes, saleRes, debtorRes] = await Promise.all([
+        const [prodRes, brandRes, saleRes, debtorRes, vendorRes] = await Promise.all([
           api.get(`allinventory/product/branch/${branchId}/`),
           api.get(`allinventory/brand/branch/${branchId}/`),
           api.get(`alltransaction/salestransaction/${salesId}/`),
           api.get(`alltransaction/debtors/branch/${branchId}/`),
+          api.get(`alltransaction/vendor/branch/${branchId}/`),
         ]);
         setProducts(prodRes.data);
         setBrands(brandRes.data);
         setDebtors(debtorRes.data);
+        setVendors(vendorRes.data);
 
         const data = saleRes.data;
         setOriginalSalesData(data);
@@ -239,6 +242,12 @@ export default function EditAllSalesTransactionForm() {
 
   // Handlers
   const calculateTotalPrice = (price, qty) => price * qty;
+
+  // add this alongside your other handlers
+const handleNewProductVendorChange = (ids) => {
+  setNewProductData(prev => ({ ...prev, vendor: ids }));
+};
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -1029,12 +1038,14 @@ export default function EditAllSalesTransactionForm() {
         newProductData={newProductData}
         handleNewProductChange={handleNewProductChange}
         handleNewProductBrandChange={handleNewProductBrandChange}
+        handleNewProductVendorChange={handleNewProductVendorChange}
         handleAddProduct={handleAddProduct}
         brands={brands}
         openBrand={openBrand}
         setOpenBrand={setOpenBrand}
         branches={branchList}
         userBranch={userBranch}
+        vendors={vendors}
       />
       {/* New Brand Dialog */}
       <Dialog open={showNewBrandDialog} onOpenChange={setShowNewBrandDialog}>

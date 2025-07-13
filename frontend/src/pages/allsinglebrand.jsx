@@ -10,6 +10,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Sidebar from "../components/allsidebar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -29,122 +30,194 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import { Label } from "@/components/ui/label";
+
+import Select from "react-select";
+import clsx from "clsx";
 
 export default function AllBrandProducts() {
   const api = useAxios();
-  const { branchId, id } = useParams(); // id is the brand id, branchId is the current branch
+  const { branchId, id } = useParams();
   const navigate = useNavigate();
 
+  // Core state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [brandName, setBrandName] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [barcode, setBarcode] = useState("");
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [brands, setBrands] = useState([]);
   const [branch, setBranch] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState(null);
-  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
-
-  // State for branch details
   const [branchData, setBranchData] = useState({});
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState(null);
 
-  // New Product Dialog states – default branch is set to branchData.id once loaded
+  // Vendor & new‑product dialog state
+  const [vendors, setVendors] = useState([]);
   const [showNewProductDialog, setShowNewProductDialog] = useState(false);
   const [newProductData, setNewProductData] = useState({
     name: "",
     brand: id,
     cost_price: "",
     selling_price: "",
-    branch: branchId, // Will be set to branchData.id once branchData is fetched
+    branch: branchId,
+    vendor: [],
   });
 
-  const handleImportProducts = async (selectedBranchId) => {
-    try {
-      console.log("MERGING ................")
-      await api.post(`allinventory/product/branch/${branchId}/brand/${id}/merge/${selectedBranchId}/`);
-      setIsImportDialogOpen(false);
-      // Refresh products list
-      const response = await api.get(`allinventory/brand/${id}/`);
-      setProducts(response.data);
-      setFilteredProducts(response.data);
-    } catch (error) {
-      console.error("Error importing products:", error);
-    }
+  // react‑select styling to match your Tailwind theme
+  const selectStyle = {
+  control: ({ isFocused }) =>
+    cn(
+      "bg-slate-700 border border-slate-600 rounded px-2 py-1",
+      isFocused && "ring-2 ring-purple-500"
+    ),
+  input: () => "[&_input:focus]:ring-0",
+  menu: () => "bg-slate-700 border border-slate-600 rounded mt-1 z-50",
+  option: ({ isFocused, isSelected }) =>
+    cn(
+      "px-3 py-2 cursor-pointer",
+      isFocused && "bg-slate-600",
+      isSelected && "bg-purple-600 text-white"
+    ),
+  placeholder: () => "text-sm text-slate-500",
   };
 
+  // Fetch products, branches, current branch & vendors
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchData() {
       try {
-        // Existing brand products fetch
-        const response = await api.get(`allinventory/brand/${id}/`);
-        setProducts(response.data);
-        setFilteredProducts(response.data);
-        setBrandName(response.data[0]?.brandName || "Brand");
+        const [pRes, brRes, cbRes, vRes] = await Promise.all([
+          api.get(`allinventory/brand/${id}/`),
+          api.get(`enterprise/branch/`),
+          api.get(`enterprise/branch/${branchId}/`),
+          api.get(`alltransaction/vendor/`),
+        ]);
 
-        // Fetch branch list
-        const branchResponse = await api.get(`enterprise/branch/`);
-        setBranch(branchResponse.data);
+        setProducts(pRes.data);
+        setFilteredProducts(pRes.data);
+        setBrandName(pRes.data[0]?.brandName || "Brand");
 
-        // Fetch current branch details using branchId
-        const currentBranchResponse = await api.get(`enterprise/branch/${branchId}/`);
-        setBranchData(currentBranchResponse.data);
+        setBranch(brRes.data);
+        setBranchData(cbRes.data);
         setNewProductData((prev) => ({
           ...prev,
-          branch: currentBranchResponse.data.id.toString(),
+          branch: cbRes.data.id.toString(),
         }));
+
+        setVendors(
+          vRes.data.map((v) => ({ value: v.id, label: v.name }))
+        );
+
         setLoading(false);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load data");
         setLoading(false);
       }
-    };
-
+    }
     fetchData();
-  }, [id, branchId]);
+  }, [ id, branchId]);
 
+  // Filter products on searchTerm
   useEffect(() => {
-    const results = products.filter((product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    setFilteredProducts(
+      products.filter((p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
     );
-    setFilteredProducts(results);
   }, [searchTerm, products]);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
+  // Handlers
+  const handleSearch = (e) => setSearchTerm(e.target.value);
 
-  const fetchBarcode = async (productId) => {
+  const fetchBarcode = async (pid) => {
     try {
-      const response = await api.get(`allinventory/barcode/${productId}/`);
-      setBarcode(response.data);
-    } catch (err) {
-      console.error("Error fetching barcode:", err);
+      const r = await api.get(`allinventory/barcode/${pid}/`);
+      setBarcode(r.data);
+    } catch {
       setBarcode("");
     }
   };
 
-  const handleProductClick = (product, e) => {
+  const handleProductClick = (p, e) => {
     if (!e.target.closest(".checkbox-wrapper")) {
-      setSelectedProduct(product);
-      fetchBarcode(product.id);
+      setSelectedProduct(p);
+      fetchBarcode(p.id);
     }
   };
 
-  const handleEdit = (product) => {
-    navigate(`/inventory/branch/${product.branch}/editproduct/${product.id}`);
+  const handleCheckboxChange = (pid) =>
+    setSelectedProducts((prev) =>
+      prev.includes(pid) ? prev.filter((x) => x !== pid) : [...prev, pid]
+    );
+
+  const handleDeleteSelected = async () => {
+    setIsDeleteDialogOpen(false);
+    try {
+      await Promise.all(
+        selectedProducts.map((pid) =>
+          api.delete(`allinventory/deleteproduct/${pid}/`)
+        )
+      );
+      const remaining = products.filter((p) => !selectedProducts.includes(p.id));
+      setProducts(remaining);
+      setFilteredProducts(remaining);
+      setSelectedProducts([]);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
+  const handleImportProducts = async (sbId) => {
+    try {
+      await api.post(
+        `allinventory/product/branch/${branchId}/brand/${id}/merge/${sbId}/`
+      );
+      setIsImportDialogOpen(false);
+      const r = await api.get(`allinventory/brand/${id}/`);
+      setProducts(r.data);
+      setFilteredProducts(r.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleVendorSelect = (opts) =>
+    setNewProductData((prev) => ({
+      ...prev,
+      vendor: opts ? opts.map((o) => o.value) : [],
+    }));
+
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    try {
+      const r = await api.post("allinventory/product/", newProductData);
+      setProducts((prev) => [...prev, r.data]);
+      setFilteredProducts((prev) => [...prev, r.data]);
+      setNewProductData({
+        name: "",
+        brand: id,
+        cost_price: "",
+        selling_price: "",
+        branch: branchId,
+        vendor: [],
+      });
+      setShowNewProductDialog(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEdit = (p) =>
+    navigate(`/inventory/branch/${p.branch}/editproduct/${p.id}`);
+
   const handlePrintBarcode = () => {
-    const newWindow = window.open();
-    newWindow.document.write(`
+    const w = window.open();
+    w.document.write(`
       <html>
         <head>
           <title>Print Barcode</title>
@@ -158,60 +231,8 @@ export default function AllBrandProducts() {
         </body>
       </html>
     `);
-    newWindow.document.close();
-    newWindow.print();
-  };
-
-  const handleCheckboxChange = (productId) => {
-    setSelectedProducts((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
-    );
-  };
-
-  const handleDeleteSelected = async () => {
-    setIsDeleteDialogOpen(false);
-    try {
-      for (const productId of selectedProducts) {
-        await api.delete(`allinventory/deleteproduct/${productId}/`);
-      }
-      setProducts((prev) =>
-        prev.filter((product) => !selectedProducts.includes(product.id))
-      );
-      setFilteredProducts((prev) =>
-        prev.filter((product) => !selectedProducts.includes(product.id))
-      );
-      setSelectedProducts([]);
-    } catch (err) {
-      console.error("Error deleting products:", err);
-    }
-  };
-
-  // --- New Product Dialog functions ---
-  const handleNewProductChange = (e) => {
-    const { name, value } = e.target;
-    setNewProductData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleAddProduct = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await api.post("allinventory/product/", newProductData);
-      setProducts((prev) => [...prev, response.data]);
-      setFilteredProducts((prev) => [...prev, response.data]);
-      // Reset new product data – ensure branch is set to current branch id
-      setNewProductData({
-        name: "",
-        brand: id,
-        cost_price: "",
-        selling_price: "",
-        branch: branchId,
-      });
-      setShowNewProductDialog(false);
-    } catch (err) {
-      console.error("Error adding product:", err);
-    }
+    w.document.close();
+    w.print();
   };
 
   if (loading) {
@@ -221,7 +242,6 @@ export default function AllBrandProducts() {
       </div>
     );
   }
-
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-red-500 text-lg">
@@ -234,6 +254,7 @@ export default function AllBrandProducts() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex flex-col lg:flex-row">
       <Sidebar />
       <div className="flex-1 p-4 sm:p-6 lg:p-10 lg:ml-64">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -241,20 +262,21 @@ export default function AllBrandProducts() {
           className="flex flex-col space-y-4 mb-8"
         >
           <div className="flex justify-between">
-          < div className="flex justify-center items-center w-full">
-          <h1 className="text-xl sm:text-2xl lg:text-4xl text-center font-bold text-white">
-            {brandName} Products
-          </h1>
-          </div>
-          <div className="md:hidden">
-          <DropdownMenu>
+            <div className="flex justify-center items-center w-full">
+              <h1 className="text-xl sm:text-2xl lg:text-4xl text-center font-bold text-white">
+                {brandName} Products
+              </h1>
+            </div>
+            <div className="md:hidden">
+              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  
-                    <List className="h-6 w-6 text-white"/>
+                  <List className="h-6 w-6 text-white" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
                   <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>Import From Branch</DropdownMenuSubTrigger>
+                    <DropdownMenuSubTrigger>
+                      Import From Branch
+                    </DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
                       <DropdownMenuSubContent>
                         {branch?.map((b) => (
@@ -273,8 +295,9 @@ export default function AllBrandProducts() {
                   </DropdownMenuSub>
                 </DropdownMenuContent>
               </DropdownMenu>
-              </div>
+            </div>
           </div>
+
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
             <div className="relative w-full sm:w-60">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -295,7 +318,6 @@ export default function AllBrandProducts() {
                 <ArrowLeft className="mr-2 h-4 w-3" />
                 Back to Inventory
               </Button>
-              
               <Button
                 onClick={() => setIsDeleteDialogOpen(true)}
                 variant="destructive"
@@ -306,38 +328,40 @@ export default function AllBrandProducts() {
                 Delete Selected
               </Button>
               <div className="hidden md:block">
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  
-                    <List className="h-8 w-6 text-white"/>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56">
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>Import From Branch</DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        {branch?.map((b) => (
-                          <DropdownMenuItem
-                            key={b.id}
-                            onClick={() => {
-                              setSelectedBranch(b);
-                              setIsImportDialogOpen(true);
-                            }}
-                          >
-                            {b.name}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <List className="h-8 w-6 text-white" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        Import From Branch
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuSubContent>
+                          {branch?.map((b) => (
+                            <DropdownMenuItem
+                              key={b.id}
+                              onClick={() => {
+                                setSelectedBranch(b);
+                                setIsImportDialogOpen(true);
+                              }}
+                            >
+                              {b.name}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuSub>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-          </div>
-        </motion.div>
+              </div>
 
+          </motion.div>
+
+        {/* Products Table */}
         <Card className="bg-gradient-to-b from-slate-800 to-slate-900 border-none shadow-lg">
           <CardContent className="p-0 overflow-x-auto">
             <div className="grid grid-cols-12 gap-2 p-2 sm:p-4 text-xs sm:text-sm font-medium text-slate-300 border-b border-slate-700">
@@ -347,21 +371,21 @@ export default function AllBrandProducts() {
               <div className="col-span-2 lg:col-span-2 text-right">Unit Price</div>
               <div className="col-span-3 lg:col-span-3 text-right">Stock Price</div>
             </div>
-            {filteredProducts?.map((product) => (
+            {filteredProducts.map((p) => (
               <motion.div
-                key={product.id}
+                key={p.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
                 className={`grid grid-cols-12 gap-2 p-2 sm:p-4 items-center hover:bg-slate-800 transition-colors duration-200 cursor-pointer ${
-                  selectedProducts.includes(product.id) ? "bg-slate-700" : ""
+                  selectedProducts.includes(p.id) ? "bg-slate-700" : ""
                 }`}
-                onClick={(e) => handleProductClick(product, e)}
+                onClick={(e) => handleProductClick(p, e)}
               >
                 <div className="col-span-1 flex items-center justify-center checkbox-wrapper">
                   <Checkbox
-                    checked={selectedProducts.includes(product.id)}
-                    onCheckedChange={() => handleCheckboxChange(product.id)}
+                    checked={selectedProducts.includes(p.id)}
+                    onCheckedChange={() => handleCheckboxChange(p.id)}
                     onClick={(e) => e.stopPropagation()}
                     className="border-gray-400"
                   />
@@ -369,24 +393,24 @@ export default function AllBrandProducts() {
                 <div className="col-span-4 lg:col-span-4 flex items-center">
                   <Container className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-purple-400 mr-1 sm:mr-2 flex-shrink-0" />
                   <span className="text-white text-xs sm:text-sm lg:text-base truncate">
-                    {product.name}
+                    {p.name}
                   </span>
                 </div>
                 <div
                   className={`col-span-2 lg:col-span-2 text-center ${
-                    product.count < 3 ? "text-red-500" : "text-green-500"
+                    p.count < 3 ? "text-red-500" : "text-green-500"
                   } text-xs sm:text-sm lg:text-base`}
                 >
-                  {product.count}
+                  {p.count}
                 </div>
                 <div className="col-span-2 lg:col-span-2 text-right text-white text-xs sm:text-sm lg:text-base">
-                  {product.selling_price
-                    ? `RS. ${product.selling_price.toLocaleString()}`
+                  {p.selling_price
+                    ? `RS. ${p.selling_price.toLocaleString()}`
                     : "N/A"}
                 </div>
                 <div className="col-span-3 lg:col-span-3 text-right text-white text-xs sm:text-sm lg:text-base">
-                  {product.stock
-                    ? `RS. ${product.stock.toLocaleString()}`
+                  {p.stock
+                    ? `RS. ${p.stock.toLocaleString()}`
                     : "N/A"}
                 </div>
               </motion.div>
@@ -405,22 +429,14 @@ export default function AllBrandProducts() {
           </motion.div>
         )}
 
-        {/* Dialog for Product Details */}
-        <Dialog
-          open={!!selectedProduct}
-          onOpenChange={() => setSelectedProduct(null)}
-        >
-          <DialogTrigger asChild>
-            <span className="hidden" />
-          </DialogTrigger>
+        {/* Product Details Dialog */}
+        <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
+          <DialogTrigger asChild><span className="hidden" /></DialogTrigger>
           <DialogContent className="w-full max-w-md mx-auto">
             <DialogHeader>
               <DialogTitle className="text-lg sm:text-xl flex justify-between mt-2">
                 <div>Product Details</div>
-                <Button
-                  className="hover:scale-105"
-                  onClick={() => handleEdit(selectedProduct)}
-                >
+                <Button onClick={() => handleEdit(selectedProduct)} className="hover:scale-105">
                   Edit
                 </Button>
               </DialogTitle>
@@ -429,43 +445,21 @@ export default function AllBrandProducts() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-2 gap-4 text-sm sm:text-base">
-              <div>
-                <p className="font-semibold">Name:</p>
-                <p>{selectedProduct?.name}</p>
-              </div>
-              <div>
-                <p className="font-semibold">Quantity:</p>
-                <p>{selectedProduct?.count}</p>
-              </div>
-              <div>
-                <p className="font-semibold">Cost Price:</p>
-                <p>
-                  {selectedProduct?.cost_price
-                    ? `RS. ${selectedProduct.cost_price.toLocaleString()}`
-                    : "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold">Selling Price:</p>
-                <p>
-                  {selectedProduct?.selling_price
-                    ? `RS. ${selectedProduct.selling_price.toLocaleString()}`
-                    : "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold">Stock Price:</p>
-                <p>
-                  {selectedProduct?.stock
-                    ? `RS. ${selectedProduct.stock.toLocaleString()}`
-                    : "N/A"}
-                </p>
-              </div>
+              {[
+                ["Name", selectedProduct?.name],
+                ["Quantity", selectedProduct?.count],
+                ["Cost Price", selectedProduct?.cost_price ? `RS. ${selectedProduct.cost_price.toLocaleString()}` : "N/A"],
+                ["Selling Price", selectedProduct?.selling_price ? `RS. ${selectedProduct.selling_price.toLocaleString()}` : "N/A"],
+                ["Stock Price", selectedProduct?.stock ? `RS. ${selectedProduct.stock.toLocaleString()}` : "N/A"],
+              ].map(([label, val]) => (
+                <div key={label}>
+                  <p className="font-semibold">{label}:</p>
+                  <p>{val}</p>
+                </div>
+              ))}
             </div>
             <div className="mt-4">
-              <p className="font-semibold mb-2 text-sm sm:text-base">
-                Barcode:
-              </p>
+              <p className="font-semibold mb-2 text-sm sm:text-base">Barcode:</p>
               {barcode ? (
                 <div
                   dangerouslySetInnerHTML={{ __html: barcode }}
@@ -479,7 +473,7 @@ export default function AllBrandProducts() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
+        {/* Delete Confirmation */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogContent className="w-full max-w-md mx-auto">
             <DialogHeader>
@@ -489,18 +483,10 @@ export default function AllBrandProducts() {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-2">
-              <Button
-                variant="outline"
-                className="w-full text-black sm:w-auto"
-                onClick={() => setIsDeleteDialogOpen(false)}
-              >
+              <Button variant="outline" className="w-full text-black sm:w-auto" onClick={() => setIsDeleteDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button
-                variant="destructive"
-                className="w-full sm:w-auto"
-                onClick={handleDeleteSelected}
-              >
+              <Button variant="destructive" className="w-full sm:w-auto" onClick={handleDeleteSelected}>
                 Delete
               </Button>
             </DialogFooter>
@@ -529,7 +515,7 @@ export default function AllBrandProducts() {
           </DialogContent>
         </Dialog>
 
-        {/* Plus Button to trigger New Product Dialog */}
+        {/* Add New Product Button */}
         <Button
           className="fixed bottom-8 right-8 rounded-full w-14 h-14 lg:w-16 lg:h-16 shadow-lg bg-purple-600 hover:bg-purple-700 text-white"
           onClick={() => setShowNewProductDialog(true)}
@@ -537,7 +523,7 @@ export default function AllBrandProducts() {
           <Plus className="w-6 h-6 lg:w-8 lg:h-8" />
         </Button>
 
-        {/* Inline New Product Dialog */}
+        {/* New Product Dialog */}
         <Dialog open={showNewProductDialog} onOpenChange={setShowNewProductDialog}>
           <DialogContent className="sm:max-w-[425px] bg-slate-800 text-white">
             <DialogHeader>
@@ -547,7 +533,7 @@ export default function AllBrandProducts() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              {/* Product Name */}
+              {/* Name */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="newProductName" className="text-right text-white">
                   Name
@@ -556,7 +542,7 @@ export default function AllBrandProducts() {
                   id="newProductName"
                   name="name"
                   value={newProductData.name}
-                  onChange={handleNewProductChange}
+                  onChange={(e) => setNewProductData(prev => ({ ...prev, name: e.target.value }))}
                   className="col-span-3 bg-slate-700 border-slate-600 text-white"
                   placeholder="Enter product name"
                 />
@@ -570,7 +556,7 @@ export default function AllBrandProducts() {
                   id="newProductCostPrice"
                   name="cost_price"
                   value={newProductData.cost_price}
-                  onChange={handleNewProductChange}
+                  onChange={(e) => setNewProductData(prev => ({ ...prev, cost_price: e.target.value }))}
                   className="col-span-3 bg-slate-700 border-slate-600 text-white"
                   placeholder="Enter cost price"
                 />
@@ -584,12 +570,30 @@ export default function AllBrandProducts() {
                   id="newProductSellingPrice"
                   name="selling_price"
                   value={newProductData.selling_price}
-                  onChange={handleNewProductChange}
+                  onChange={(e) => setNewProductData(prev => ({ ...prev, selling_price: e.target.value }))}
                   className="col-span-3 bg-slate-700 border-slate-600 text-white"
                   placeholder="Enter selling price"
                 />
               </div>
-              {/* Branch Select */}
+              {/* Vendors */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="newProductVendors" className="text-right text-white">
+                  Vendors
+                </Label>
+                <div className="col-span-3">
+                  <Select
+                    id="newProductVendors"
+                    isMulti
+                    unstyled
+                    options={vendors}
+                    value={vendors.filter(v => newProductData.vendor.includes(v.value))}
+                    onChange={handleVendorSelect}
+                    classNames={selectStyle}
+                    className=" bg-slate-700 border-slate-600 text-sm"
+                    placeholder="Select vendors"
+                  />
+                </div>
+              </div>
             </div>
             <DialogFooter>
               <Button
