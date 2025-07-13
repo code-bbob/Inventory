@@ -203,7 +203,7 @@ export default function AllBrandProducts() {
       // Reset new product data – ensure branch is set to current branch id
       setNewProductData({
         name: "",
-        brand: "",
+        brand: id,
         cost_price: "",
         selling_price: "",
         branch: branchId,
