@@ -40,7 +40,7 @@ import AllBrandProducts from "./pages/allsinglebrand";
 import AllSalesTransactions from "./pages/allSales";
 import AllSalesTransactionForm from "./components/allsalestransactionform";
 import useGlobalKeyPress from "./hooks/globalKeyPress";
-import AllVendorPage  from "./pages/allVendors";
+import AllVendorPage  from "./pages/allvendors";
 import EditAllSalesTransactionForm from "./components/editallsales";
 import AllVendorTransactions from "./pages/allvendortransactions";
 import AllVendorTransactionForm from "./pages/allvendortransactionform";
