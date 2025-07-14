@@ -173,7 +173,7 @@ export default function BrandPhones() {
             </div>
             <div className="flex space-x-2 w-full sm:w-auto">
               <Button
-                onClick={() => navigate("/mobile/inventory")}
+                onClick={() => navigate("/mobile/inventory/branch/" + branchId)}
                 variant="outline"
                 className="w-full sm:w-auto px-5 text-black border-white hover:bg-gray-700 hover:text-white"
               >

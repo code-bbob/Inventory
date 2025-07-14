@@ -231,7 +231,10 @@ function AllPurchaseTransactionForm() {
       setShowNewProductDialog(true);
     } else {
       const newPurchase = [...formData.purchase];
-      newPurchase[index] = { ...newPurchase[index], product: value };
+       const matchingProduct = products.find(
+        (product) => product.id.toString() === value
+      );
+      newPurchase[index] = { ...newPurchase[index], product: value, unit_price: matchingProduct?.cost_price || "" };
       setFormData((prevState) => ({
         ...prevState,
         purchase: newPurchase,
@@ -722,6 +725,25 @@ const handleNewProductVendorChange = (ids) => {
 
                     <div className="flex flex-col">
                       <Label
+                        htmlFor={`quantity-${index}`}
+                        className="text-sm font-medium text-white mb-2"
+                      >
+                        Quantity
+                      </Label>
+                      <Input
+                        type="number"
+                        id={`quantity-${index}`}
+                        name="quantity"
+                        onWheel={handleWheel}
+                        value={purchase.quantity}
+                        onChange={(e) => handlePurchaseChange(index, e)}
+                        className="bg-slate-600 border-slate-500 text-white focus:ring-purple-500 focus:border-purple-500"
+                        placeholder="Enter unit price"
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <Label
                         htmlFor={`price-${index}`}
                         className="text-sm font-medium text-white mb-2"
                       >
@@ -740,25 +762,6 @@ const handleNewProductVendorChange = (ids) => {
                       />
                     </div>
 
-                    <div className="flex flex-col">
-                      <Label
-                        htmlFor={`quantity-${index}`}
-                        className="text-sm font-medium text-white mb-2"
-                      >
-                        Quantity
-                      </Label>
-                      <Input
-                        type="number"
-                        id={`quantity-${index}`}
-                        name="quantity"
-                        onWheel={handleWheel}
-                        value={purchase.quantity}
-                        onChange={(e) => handlePurchaseChange(index, e)}
-                        className="bg-slate-600 border-slate-500 text-white focus:ring-purple-500 focus:border-purple-500"
-                        placeholder="Enter unit price"
-                        required
-                      />
-                    </div>
 
                     <div className="flex flex-col">
                       <Label

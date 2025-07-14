@@ -203,8 +203,11 @@ const handleNewProductVendorChange = (ids) => {
     if (value === "new") {
       setShowNewProductDialog(true);
     } else {
+       const matchingProduct = products.find(
+        (product) => product.id.toString() === value
+      );
       const newPurchase = [...formData.purchase];
-      newPurchase[index] = { ...newPurchase[index], product: value };
+      newPurchase[index] = { ...newPurchase[index], product: value, cost_price: matchingProduct.cost_price};
       setFormData((prevState) => ({
         ...prevState,
         purchase: newPurchase,
