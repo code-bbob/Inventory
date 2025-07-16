@@ -215,25 +215,81 @@ export default function AllBrandProducts() {
   const handleEdit = (p) =>
     navigate(`/inventory/branch/${p.branch}/editproduct/${p.id}`);
 
+  // const handlePrintBarcode = () => {
+  //   const w = window.open();
+  //   w.document.write(`
+  //     <html>
+  //       <head>
+  //         <title>Print Barcode</title>
+  //         <style>
+  //           body { text-align: center; margin: 20px; }
+  //           img { max-width: 100%; }
+  //         </style>
+  //       </head>
+  //       <body>
+  //         <div>${barcode}</div>
+  //       </body>
+  //     </html>
+  //   `);
+  //   w.document.close();
+  //   w.print();
+  // };
+
   const handlePrintBarcode = () => {
-    const w = window.open();
-    w.document.write(`
-      <html>
-        <head>
-          <title>Print Barcode</title>
-          <style>
-            body { text-align: center; margin: 20px; }
-            img { max-width: 100%; }
-          </style>
-        </head>
-        <body>
-          <div>${barcode}</div>
-        </body>
-      </html>
-    `);
-    w.document.close();
-    w.print();
-  };
+  if (!selectedProduct || !barcode) return; // nothing to print
+
+  const printWindow = window.open('', '_blank');
+  const productName = selectedProduct.name;
+
+  // construct the HTML doc
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Print Barcode - ${productName}</title>
+        <style>
+          /* Center everything and give a little breathing room */
+          body {
+            text-align: center;
+            margin: 40px;
+          }
+          /* Make sure SVG scales nicely to the page width */
+          svg {
+            max-width: 100%;
+            height: auto;
+          }
+          /* Style the product name for print */
+          .product-name {
+            margin-top: 12px;
+            font-size: 12pt;      /* good print size */
+            font-family: sans-serif;
+          }
+          @media print {
+            /* remove any default margins */
+            @page { margin: 0; }
+            body { margin: 20px; }
+          }
+        </style>
+      </head>
+      <body>
+        <!-- your SVG barcode -->
+        <div id="barcode">
+          ${barcode}
+        </div>
+        <!-- the product name below -->
+        <div class="product-name">
+          ${productName}
+        </div>
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  // optionally close the window after printing
+  // printWindow.close();
+};
+
 
   if (loading) {
     return (

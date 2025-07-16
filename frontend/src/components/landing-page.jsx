@@ -28,6 +28,7 @@ import { useDispatch } from "react-redux"
 import { logout } from "../redux/accessSlice"
 import Sidebar from "./sidebar"
 import ChartsDashboard from "./charts-dashboard"
+import { useBranchManagement } from "../hooks/useBranchManagement"
 
 export default function LandingPage() {
   const api = useAxios()
@@ -38,6 +39,9 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const dispatch = useDispatch()
+  
+  // Use branch management hook
+  const { navigateWithBranch } = useBranchManagement()
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken")
@@ -136,14 +140,14 @@ export default function LandingPage() {
             value={currentStats.purchases}
             subValue={isMonthly ? currentStats.ptamt : currentStats.dailyptamt}
             icon={<ShoppingCart className="h-6 w-6 text-blue-400" />}
-            onClick={() => navigate("/mobile/purchases")}
+            onClick={() => navigateWithBranch("purchases", true)}
           />
           <StatCard
             title="Total Sales"
             value={currentStats.sales}
             subValue={isMonthly ? currentStats.stamt : currentStats.dailystamt}
             icon={<TrendingUp className="h-6 w-6 text-green-400" />}
-            onClick={() => navigate("/mobile/sales")}
+            onClick={() => navigateWithBranch("sales", true)}
           />
           <StatCard 
             title="Profit"
@@ -159,13 +163,13 @@ export default function LandingPage() {
             title="Current Stock"
             value={stats.stock}
             icon={<Smartphone className="h-6 w-6 text-purple-400" />}
-            onClick={() => navigate("/mobile/inventory")}
+            onClick={() => navigateWithBranch("inventory", true)}
           />
           <StatCard
             title="Brands"
             value={stats.brands}
             icon={<Shield className="h-6 w-6 text-indigo-400" />}
-            onClick={() => navigate("/mobile/inventory")}
+            onClick={() => navigateWithBranch("inventory", true)}
           />
         </div>
 

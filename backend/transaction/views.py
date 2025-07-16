@@ -52,7 +52,7 @@ class PurchaseTransactionView(APIView):
                 date__range=(start_date, end_date)
             )
 
-        transactions = transactions.order_by('-date')
+        transactions = transactions.order_by('-date','-id')
 
 
         paginator = PageNumberPagination()
@@ -257,8 +257,8 @@ class SalesTransactionView(APIView):
             transactions = SalesTransaction.objects.filter(
                 date__range=(start_date, end_date)
             )
-        
-        transactions = transactions.order_by('-date')
+
+        transactions = transactions.order_by('-date','-id')
 
 
         paginator = PageNumberPagination()
@@ -941,7 +941,7 @@ class VendorTransactionView(APIView):
                     date__range=(start_date, end_date)
                 )
 
-        transactions = transactions.order_by('-date')
+        transactions = transactions.order_by('-date','-id')
 
         print(transactions)
 
@@ -1450,7 +1450,7 @@ class EMIDebtorTransactionView(APIView):
                 date__range=(start_date, end_date)
             )
 
-        debtor_transactions = debtor_transactions.order_by('-id')
+        debtor_transactions = debtor_transactions.order_by('-date','-id')
 
 
         paginator = PageNumberPagination()

@@ -85,6 +85,12 @@ const EditProductForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    //check if the barcode is 12 digits, if not set error
+    if (formData.uid.length !== 12) {
+      setError("Barcode ID must be exactly 12 digits.");
+      setLoading(false);
+      return;
+    }
     try {
       await api.patch(`allinventory/product/${productId}/`, formData);
       navigate("/"); 
@@ -134,13 +140,7 @@ const EditProductForm = () => {
       </div>
     );
   }
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-red-500 text-lg">
-        {error}
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 to-slate-800">

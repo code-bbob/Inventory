@@ -29,6 +29,7 @@ import { logout } from "../redux/accessSlice"
 import Sidebar from "../components/allsidebar"
 import ChartsDashboard from "../components/charts-dashboard"
 import { clearSelectedBranch } from "../utils/branchUtils"
+import { useBranchManagement } from "../hooks/useBranchManagement"
 
 export default function AllLandingPage() {
   const api = useAxios()
@@ -39,6 +40,9 @@ export default function AllLandingPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const dispatch = useDispatch()
+  
+  // Use branch management hook
+  const { navigateWithBranch } = useBranchManagement()
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken")
@@ -137,14 +141,14 @@ export default function AllLandingPage() {
             value={currentStats.purchases}
             subValue={isMonthly ? currentStats.ptamt : currentStats.dailyptamt}
             icon={<ShoppingCart className="h-6 w-6 text-blue-400" />}
-            onClick={() => navigate("/purchases")}
+            onClick={() => navigateWithBranch("purchases")}
           />
           <StatCard
             title="Total Sales"
             value={currentStats.sales}
             subValue={isMonthly ? currentStats.stamt : currentStats.dailystamt}
             icon={<TrendingUp className="h-6 w-6 text-green-400" />}
-            onClick={() => navigate("/sales")}
+            onClick={() => navigateWithBranch("sales")}
           />
           <StatCard 
             title="Profit"
@@ -160,13 +164,13 @@ export default function AllLandingPage() {
             title="Current Stock"
             value={stats.stock}
             icon={<Smartphone className="h-6 w-6 text-purple-400" />}
-            onClick={() => navigate("/inventory")}
+            onClick={() => navigateWithBranch("inventory")}
           />
           <StatCard
             title="Brands"
             value={stats.brands}
             icon={<Shield className="h-6 w-6 text-indigo-400" />}
-            onClick={() => navigate("/inventory")}
+            onClick={() => navigateWithBranch("inventory")}
           />
         </div>
 
