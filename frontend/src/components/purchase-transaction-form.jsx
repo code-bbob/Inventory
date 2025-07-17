@@ -212,6 +212,18 @@ function PurchaseTransactionForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    //check if imei_numbers of each field of purchase are of 15 digits and unique
+    const imeiNumbers = formData.purchase.map(p => p.imei_number);
+    const uniqueImeiNumbers = new Set(imeiNumbers);
+    if (imeiNumbers.length !== uniqueImeiNumbers.size) {
+      setError("IMEI numbers must be unique.");
+      return;
+    }
+    if (imeiNumbers.some(imei => imei.length !== 15)) {
+      setError("Each IMEI number must be exactly 15 digits.");
+      return;
+    }
     try {
       setSubLoading(true);
       const submissionData = JSON.parse(JSON.stringify(formData));
