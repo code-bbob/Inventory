@@ -314,75 +314,7 @@ export default function AllVendorPage() {
                 placeholder="Enter due amount"
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="vendorBrand" className="text-right text-white">
-                Brand
-              </Label>
-              <div className="col-span-3">
-                <Popover open={openBrand} onOpenChange={setOpenBrand}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openBrand}
-                      className="w-full justify-between bg-slate-700 border-slate-600 text-white"
-                    >
-                      {newVendorData.brand
-                        ? brands.find(
-                            (b) => b.id.toString() === newVendorData.brand
-                          )?.name
-                        : "Select a brand..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0 bg-slate-700 border-slate-600">
-                    <Command className="bg-slate-700">
-                      <CommandInput
-                        placeholder="Search brand..."
-                        className="bg-slate-700 text-white"
-                      />
-                      <CommandList>
-                        <CommandEmpty>No brand found.</CommandEmpty>
-                        <CommandGroup>
-                          {brands.map((brand) => (
-                            <CommandItem
-                              key={brand.id}
-                              onSelect={() => {
-                                setNewVendorData((prev) => ({
-                                  ...prev,
-                                  brand: brand.id.toString(),
-                                }));
-                                setOpenBrand(false);
-                              }}
-                              className="text-white hover:bg-slate-600"
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  newVendorData.brand === brand.id.toString()
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {brand.name}
-                            </CommandItem>
-                          ))}
-                          <CommandItem
-                            onSelect={() => {
-                              setShowNewBrandDialog(true);
-                              setOpenBrand(false);
-                            }}
-                            className="text-white hover:bg-slate-600"
-                          >
-                            <Plus className="mr-2 h-4 w-4" /> Add a new brand
-                          </CommandItem>
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
+            
           </div>
           <DialogFooter>
             <Button
