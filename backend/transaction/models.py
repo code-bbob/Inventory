@@ -309,7 +309,7 @@ class VendorTransaction(models.Model):
     cheque_number = models.CharField(max_length=10,null=True,blank=True)
     cashout_date = models.DateField(null=True)
     method = models.CharField(max_length=10,choices=[('cash','Cash'),('cheque','Cheque')],default='cheque')
-    desc = models.CharField(max_length=255,null=True)
+    desc = models.CharField(max_length=550,null=True)
     purchase_transaction = models.ForeignKey(PurchaseTransaction, on_delete=models.CASCADE,related_name="vendor_transaction",null=True,blank=True)
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE, related_name='vendor_transaction_branch',null=True,blank=True)
     base = models.BooleanField(default=False)
@@ -347,7 +347,7 @@ class EMIDebtorTransaction(models.Model):
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE, related_name='emi_transaction_branch',null=True,blank=True)
     enterprise = models.ForeignKey(Enterprise, on_delete=models.CASCADE, related_name='emi_transaction_enterprise')
     sales_transaction = models.ForeignKey(SalesTransaction, on_delete=models.CASCADE, null=True, blank=True, related_name='emi_sales_transaction')  
-    desc = models.CharField(max_length=255, null=True, blank=True)
+    desc = models.CharField(max_length=550, null=True, blank=True)
     def __str__(self):
         return f"EMI Transaction of {self.amount} for {self.debtor.name} on {self.date}"
     
