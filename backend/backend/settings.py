@@ -24,11 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-e4d2awhn)g2*qtvljkvpn+djj65s!h%0u3tnr0og3*w38wtwt1'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['ezinventory.pythonanywhere.com','127.0.0.1']
+# SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 
 # Application definition
@@ -82,13 +80,26 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'ATOMIC_REQUESTS': False,   # <-- must be False for real per‐request commits
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'ATOMIC_REQUESTS': False,   # <-- must be False for real per‐request commits
+        'ENGINE':   'django.db.backends.postgresql',
+        'NAME':     os.getenv('POSTGRES_DB'),
+        'USER':     os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST':     os.getenv('POSTGRES_HOST'),
+        'PORT':     os.getenv('POSTGRES_PORT'),
     }
 }
+
+
 
 # LOGGING = {
 #   'version': 1,
