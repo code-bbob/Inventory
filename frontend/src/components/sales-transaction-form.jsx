@@ -190,11 +190,16 @@ function SalesTransactionForm() {
   };
 
   const handlePhoneChange = (index, value) => {
+
+    const matchingPhone = phones.find(
+        (phone) => phone.id.toString() === value
+      );
+
     if (value === "new") {
       setShowNewPhoneDialog(true);
     } else {
       const newSales = [...formData.sales];
-      newSales[index] = { ...newSales[index], phone: value, imei_number: "" };
+      newSales[index] = { ...newSales[index], phone: value, imei_number: "", unit_price: matchingPhone ? matchingPhone.selling_price : "" };
       setFormData({ ...formData, sales: newSales });
     }
     setOpenPhone((prev) => prev.map((o, i) => (i === index ? false : o)));
@@ -1087,9 +1092,10 @@ function SalesTransactionForm() {
                     onClick={async () => {
                       try {
                         // Post to imaginary endpoint
+                        const resp = await api.post("alltransaction/debtors/", newDebtorData);
                         const newDebtor = {
                           ...newDebtorData,
-                          id: Date.now().toString(), // Mock ID
+                          id: resp.data.id, // Use the ID from the response
                         };
                         setDebtors((prev) => [...prev, newDebtor]);
                         setFormData((prev) => ({
@@ -1100,6 +1106,7 @@ function SalesTransactionForm() {
                           name: "",
                           phone_number: "",
                           due: "",
+                          branch: branchId
                         });
                         setShowNewDebtorDialog(false);
                       } catch (error) {

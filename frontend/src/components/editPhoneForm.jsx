@@ -50,7 +50,7 @@ const EditPhoneForm = () => {
       setLoading(true);
       const res = await api.patch(`inventory/phone/${phoneId}/`, formData);
       console.log("Phone updated", res.data);
-      navigate("/"); // Navigate to dashboard after successful update
+      navigate(-1); // Navigate to dashboard after successful update
     } catch (err) {
       console.error("Error updating phone", err);
       setError("Error updating phone.");
@@ -63,7 +63,7 @@ const EditPhoneForm = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 to-slate-800">
       <Sidebar />
       <Button
-        onClick={() => navigate("/")}
+        onClick={() => navigate(-1)}
         variant="outline"
         className="mb-4 w-48 md:ml-80 px-5 my-4 text-black border-white hover:bg-gray-700 hover:text-white"
       >
