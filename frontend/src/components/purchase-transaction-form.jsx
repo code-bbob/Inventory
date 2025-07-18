@@ -245,10 +245,11 @@ function PurchaseTransactionForm() {
   const handleAddPhone = async (e) => {
     e.preventDefault();
     try {
+      setSubLoading(true);
       const response = await api.post("inventory/phone/", newPhoneData);
       console.log("New Phone Added:", response.data);
       setPhones((prevPhones) => [...prevPhones, response.data]);
-      setNewPhoneData({ name: "", brand: "" });
+      setNewPhoneData({ name: "", brand: "", branch: branchId });
       setShowNewPhoneDialog(false);
       setFilteredPhones((prevFilteredPhones) => [
         ...prevFilteredPhones,
@@ -257,6 +258,9 @@ function PurchaseTransactionForm() {
     } catch (error) {
       console.error("Error adding phone:", error);
       setError("Failed to add new phone. Please try again.");
+    }
+    finally {
+      setSubLoading(false);
     }
   };
 
@@ -839,6 +843,7 @@ function PurchaseTransactionForm() {
                   <Button
                     type="button"
                     onClick={handleAddPhone}
+                    disabled={subLoading}
                     className="bg-green-600 hover:bg-green-700 text-white"
                   >
                     Add Phone
