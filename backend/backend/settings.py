@@ -203,6 +203,12 @@ EMAIL_USE_TLS = True
 
 CORS_ORIGIN_ALLOW_ALL = True    
 
+CSRF_TRUSTED_ORIGINS = ['https://ez.youthtech.com.np','http://*.127.0.0.1']
 
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR,'static')
+
+
+# Trust the X-Forwarded-Proto header so `request.is_secure()` is correct
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
