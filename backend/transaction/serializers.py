@@ -564,13 +564,18 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
             brand.stock = (brand.stock or 0) + phone_obj.selling_price
             brand.save()
 
+        desc = f'Purchase made for transaction {txn.bill_no}, Items:'
+
+
+        for purchase in txn.purchase.all():
+            desc += f' {purchase.phone.name} (IMEI: {purchase.imei_number}),'
         # Record base vendor transaction
         total = txn.calculate_total_amount()
         base_data = {
             'vendor': txn.vendor,
             'date': txn.date,
             'amount': -total,
-            'desc': f'Purchase made for transaction {txn.bill_no}',
+            'desc': desc,
             'method': txn.method,
             'purchase_transaction': txn,
             'enterprise': txn.enterprise,
@@ -722,6 +727,10 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
         new_total = instance.total_amount
         new_date = instance.date
 
+        desc = f'Purchase made for transaction {instance.bill_no}, Items:'
+        for purchase in instance.purchase.all():
+            desc += f' {purchase.phone.name} (IMEI: {purchase.imei_number}),'
+
         if old_date != new_date:
             vts = VendorTransaction.objects.filter(purchase_transaction=instance)
             for vt in vts:
@@ -740,7 +749,7 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
                 'branch': instance.branch,
                 'enterprise': instance.enterprise,
                 'amount': -new_total,
-                'desc': f'Purchase made for transaction {instance.bill_no}',
+                'desc': desc,
                 'method': new_method,
                 'purchase_transaction': instance,
                 'type': 'base',
@@ -939,11 +948,13 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
 
         phones_cache = {}
         brands_cache = {}
+        desc = f'Sales transaction {txn.bill_no} credited. Items:'
 
         # Create each sale and adjust inventory
         for item_data in sales_data:
             phone_obj = self._get_locked_phone(item_data['phone'].id, phones_cache)
             sale = Sales.objects.create(sales_transaction=txn, **item_data)
+            desc += f" {sale.phone.name} (IMEI: {sale.imei_number}),"
 
             # Decrement phone
             phone_obj.count = (phone_obj.count or 0) - 1
@@ -970,7 +981,7 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
                 'debtor': debtor,
                 'amount': -txn.credited_amount,
                 'date': txn.date,
-                'desc': f'Sales transaction {txn.bill_no} credited',
+                'desc': desc,
                 'sales_transaction': txn,
                 'branch': txn.branch,
                 'enterprise': txn.enterprise
@@ -983,7 +994,7 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
                 'debtor': debtor,
                 'amount': -txn.credited_amount,
                 'date': txn.date,
-                'desc': f'Sales transaction {txn.bill_no} credited',
+                'desc': desc,
                 'sales_transaction': txn,
                 'branch': txn.branch,
                 'enterprise': txn.enterprise
@@ -1122,6 +1133,10 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
         new_date = instance.date
         new_total = instance.total_amount or 0
 
+        desc = f'Sales transaction {instance.bill_no} credited. Items:'
+        for sale in instance.sales.all():
+            desc += f" {sale.phone.name} (IMEI: {sale.imei_number}),"
+
         if old_date != new_date:
             dts = DebtorTransaction.objects.filter(sales_transaction=instance)
             for dt in dts:
@@ -1148,7 +1163,7 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
                     'branch': instance.branch,
                     'enterprise': instance.enterprise,
                     'amount': -instance.credited_amount,
-                    'desc': f'Sale credited for transaction {instance.id} with bill number {instance.bill_no}',
+                    'desc': desc,
                     'sales_transaction': instance,
                 }
                 DebtorTransactionSerializer().create(base)
@@ -1160,7 +1175,7 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
                     'branch': instance.branch,
                     'enterprise': instance.enterprise,
                     'amount': -instance.credited_amount,
-                    'desc': f'Sale credited for transaction {instance.id} with bill number {instance.bill_no}',
+                    'desc': desc,
                     'sales_transaction': instance,
                 }
                 EMIDebtorTransactionSerializer().create(base)

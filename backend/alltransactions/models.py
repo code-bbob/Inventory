@@ -161,7 +161,7 @@ class VendorTransactions(models.Model):
     cheque_number = models.CharField(max_length=255,null=True,blank=True)
     cashout_date = models.DateField(null=True)
     enterprise = models.ForeignKey('enterprise.Enterprise', on_delete=models.CASCADE,related_name='all_vendor_transactions')
-    desc = models.CharField(max_length=550,null=True,blank=True)
+    desc = models.TextField(null=True,blank=True)
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE, null=True, blank=True)
     purchase_transaction = models.ForeignKey(PurchaseTransaction, on_delete=models.CASCADE,related_name="vendor_transaction",null=True,blank=True)
     base = models.BooleanField(default=False)
@@ -241,7 +241,7 @@ class DebtorTransaction(models.Model):
     type = models.CharField(max_length=20,choices=(('base','base'),('return','return'),('payment','payment')),default='base')
     all_sales_transaction = models.ForeignKey(SalesTransaction, on_delete=models.CASCADE,related_name="all_debtor_transaction",null=True,blank=True)
     sales_transaction = models.ForeignKey('transaction.SalesTransaction', on_delete=models.CASCADE, null=True, blank=True, related_name='debtor_transaction')
-    desc = models.CharField(max_length=550, null=True, blank=True)
+    desc = models.TextField(null=True, blank=True)
     inventory = models.CharField(max_length=20, choices=(('all','all'),('phone','phone')), null=True, blank=True)
     due = models.FloatField(null=True, blank=True, default=0)
     

@@ -431,7 +431,6 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
         new_purchase_ids = []
 
         for purchase_data in purchases_data:
-            desc += f"{purchase_data.get('product', {})} - {purchase_data.get('quantity', 0)} pcs, \n"
             purchase_id = purchase_data.get('id', None)
             if purchase_id and purchase_id in existing_purchases:
                 # Update existing purchase
@@ -547,6 +546,9 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
         instance.refresh_from_db()
         new_total_amount = instance.total_amount
         instance.save()
+
+        for purchase in instance.purchase.all():
+            desc += f"{purchase.product.name} - {purchase.quantity} pcs, \n"
 
         # Refresh and adjust vendor txns as before...
         new_vendor = instance.vendor
@@ -847,7 +849,6 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
 
         products_cache = {}
         brands_cache = {}
-        desc = f'Sales credited for :\n'
 
         def get_product_obj(prod):
             return self._get_locked_product(prod.id, products_cache)
@@ -857,7 +858,6 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
         new_sales_ids = []
 
         for sale_data in sales_data:
-            desc += f"{sale_data.get('product', {})} - {sale_data.get('quantity', 0)} pcs, \n"
             sale_id = sale_data.get('id')
             if sale_id and sale_id in existing_sales:
                 sale_inst = existing_sales.pop(sale_id)
@@ -959,6 +959,11 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
         new_date = instance.date
         new_total = instance.total_amount or 0
 
+        desc = f'Sales credited for :\n'
+        for sale in instance.sales.all():
+            desc += f"{sale.product.name} - {sale.quantity} pcs, \n"
+
+
         if old_date != new_date:
             dts = DebtorTransaction.objects.filter(all_sales_transaction=instance)
             for dt in dts:
@@ -980,7 +985,7 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
                     'enterprise': instance.enterprise,
                     'method': instance.method,
                     'amount': -instance.credited_amount,
-                    'desc': f'Sale credited for transaction {instance.id} with bill number {instance.bill_no}',
+                    'desc': desc,
                     'all_sales_transaction': instance,
                 }
                 DebtorTransactionSerializer().create(base)
