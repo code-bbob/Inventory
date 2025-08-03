@@ -472,7 +472,10 @@ const handleNewProductVendorChange = (ids) => {
     }
   };
 
-  if (loading) return <div className="text-white min-h-screen">Loading...</div>;
+  if (loading) 
+    return <div className="flex items-center justify-center h-screen bg-slate-900 text-white">
+        Loading...
+      </div>;
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-slate-900 to-slate-800">
