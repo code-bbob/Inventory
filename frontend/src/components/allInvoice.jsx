@@ -150,15 +150,6 @@ const ItemName = styled.div`
   padding-right: 2px;
 `
 
-const ItemIMEI = styled.div`
-  font-size: 7px;
-  color: #666;
-  margin-top: 1px;
-  line-height: 1.1;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-`
-
 const ItemCell = styled.div`
   font-size: 8px;
   text-align: center;
@@ -219,7 +210,7 @@ const PrintButton = styled(Button)`
 `
 
 // Main component
-const Invoice = ({ transactionId }) => {
+const AllInvoice = ({ transactionId }) => {
   const [invoiceData, setInvoiceData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -228,7 +219,7 @@ const Invoice = ({ transactionId }) => {
   useEffect(() => {
     const fetchInvoiceData = async () => {
       try {
-        const response = await api.get(`transaction/salestransaction/${transactionId}/`)
+        const response = await api.get(`alltransaction/salestransaction/${transactionId}/`)
         setInvoiceData(response.data)
         setLoading(false)
       } catch (err) {
@@ -286,10 +277,16 @@ const Invoice = ({ transactionId }) => {
     }, 100);
   }
 
+  // Remove the truncate function since we're not using it anymore
+  // const truncateText = (text, maxLength = 20) => {
+  //   if (!text) return '';
+  //   return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
+  // }
+
   // Calculate totals for better display
   const calculateTotals = () => {
     const items = invoiceData.sales || [];
-    const subtotal = items.reduce((sum, item) => sum + parseFloat(item.unit_price || 0), 0);
+    const subtotal = items.reduce((sum, item) => sum + parseFloat(item.total_price || 0), 0);
     const totalDiscount = parseFloat(invoiceData.discount || 0);
     return {
       itemCount: items.length,
@@ -298,6 +295,10 @@ const Invoice = ({ transactionId }) => {
       total: parseFloat(invoiceData.total_amount || 0).toFixed(2)
     };
   }
+
+  if (loading) return <div>Loading invoice...</div>
+  if (error) return <div>{error}</div>
+  if (!invoiceData) return null
 
   if (loading) return <div style={{textAlign: 'center', padding: '20px', fontFamily: 'monospace'}}>Loading invoice...</div>
   if (error) return <div style={{textAlign: 'center', padding: '20px', color: 'red', fontFamily: 'monospace'}}>{error}</div>
@@ -322,14 +323,6 @@ const Invoice = ({ transactionId }) => {
         </InvoiceInfo>
       </InvoiceHeader>
 
-      {invoiceData.name && (
-        <BillTo>
-          <h3>Customer:</h3>
-          <p>{invoiceData.name}</p>
-          {invoiceData.phone_number && <p>Phone: {invoiceData.phone_number}</p>}
-        </BillTo>
-      )}
-
       <ItemsTable>
         <ItemsHeader>
           <span>Item</span>
@@ -340,19 +333,12 @@ const Invoice = ({ transactionId }) => {
         
         {(invoiceData.sales || []).map((item, index) => (
           <ItemRow key={item.id || index}>
-            <div>
-              <ItemName>
-                {item.phone_name || 'Unknown Item'}
-              </ItemName>
-              {item.imei_number && (
-                <ItemIMEI>
-                  IMEI: {item.imei_number}
-                </ItemIMEI>
-              )}
-            </div>
-            <ItemCell>1</ItemCell>
+            <ItemName>
+              {item.product_name || 'Unknown Item'}
+            </ItemName>
+            <ItemCell>{item.quantity || 0}</ItemCell>
             <ItemCell>{parseFloat(item.unit_price || 0).toFixed(2)}</ItemCell>
-            <ItemCell>{parseFloat(item.unit_price || 0).toFixed(2)}</ItemCell>
+            <ItemCell>{parseFloat(item.total_price || 0).toFixed(2)}</ItemCell>
           </ItemRow>
         ))}
       </ItemsTable>
@@ -387,4 +373,5 @@ const Invoice = ({ transactionId }) => {
   )
 }
 
-export default Invoice
+export default AllInvoice
+

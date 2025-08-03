@@ -52,7 +52,7 @@ import SalesReturns from "./pages/salesReturns";
 import SalesReport from "./pages/salesReport";
 import AllSalesReport from "./pages/allSalesReport";
 import AllPurchaseReturns from "./pages/allPurchaseReturn";
-import InvoicePage from "./pages/invoicePage";
+import AllInvoicePage from "./pages/allInvoicePage";
 import EditProductForm from "./components/editProductForm";
 import AllSalesReturns from "./pages/allSalesReturn";
 import StaffPage from "./pages/staffs";
@@ -72,6 +72,7 @@ import EditEMIDebtorTransaction from "./pages/editEmiDebtorTransactions";
 import AllVendorStatementPage from "./pages/allVendorStatementPage";
 import AllDebtorStatementPage from "./pages/allDebtorStatementPage";
 import EditPhoneForm from "./components/editPhoneForm";
+import InvoicePage from "./pages/invoicePage";
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.root);
@@ -131,7 +132,7 @@ function App() {
           <Route path="debtor-transactions/branch/:branchId/editform/:debtorTransactionId" element={<EditDebtorTransactionForm />} />
           <Route path="debtors/statement/:debtorId" element={<AllDebtorStatementPage />} />
 
-          <Route path="invoice/:transactionId" element={<InvoicePage />} />
+          <Route path="invoice/:transactionId" element={<AllInvoicePage />} />
 
           {/* Mobile Section */}
           <Route path="/mobile" >
@@ -154,6 +155,8 @@ function App() {
             <Route path="sales/branch/:branchId/editform/:salesId" element={<EditSalesTransactionForm />} />
 
             <Route path="sales-returns/branch/:branchId" element={<SalesReturns />} />
+
+            <Route path="invoice/:transactionId" element={<InvoicePage />} />
 
             {/* Schemes Section */}
             <Route path="schemes/branch/:branchId" element={<SchemePageComponent />} />

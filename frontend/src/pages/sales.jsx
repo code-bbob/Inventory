@@ -113,6 +113,12 @@ export default function SalesTransactions() {
     }
   }
 
+  const handleInvoice = (e, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/mobile/invoice/${id}`)
+  }
+
   useEffect(() => {
     console.log('Transactions updated:', transactions)
   }, [transactions])
@@ -222,8 +228,9 @@ export default function SalesTransactions() {
                       </div>
                     </div>
                   ))}
-                  <div className="mt-4 flex justify-end text-white font-bold">
-                    Total Amount: RS. {transaction.total_amount?.toLocaleString()}
+                  <div className="mt-4 flex justify-between items-center text-white font-bold">
+                    <Button onClick={(e) => handleInvoice(e, transaction.id)} className="bg-purple-600 hover:bg-purple-700 text-white">View Invoice</Button>
+                    <div>Total Amount: RS. {transaction.total_amount?.toLocaleString()}</div>
                   </div>
                 </CardContent>
               </Card>
