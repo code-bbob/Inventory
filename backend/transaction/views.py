@@ -1313,10 +1313,10 @@ class SalesReportView(APIView):
         if branch:
             sales = sales.filter(sales_transaction__branch = branch)
         if search:
-            first_date_of_month = timezone.now().date().replace(day=1)
-            today = timezone.now().date()
+            # first_date_of_month = timezone.now().date().replace(day=1)
+            # today = timezone.now().date()
             sales = sales.filter(phone__brand__name__icontains = search)
-            sales = sales.filter(sales_transaction__date__range=(first_date_of_month,today))
+            # sales = sales.filter(sales_transaction__date__range=(first_date_of_month,today))
 
         if phone:
             sales = sales.filter(phone__name__startswith = phone)
