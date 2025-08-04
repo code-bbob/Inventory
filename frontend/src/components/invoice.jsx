@@ -5,30 +5,37 @@ import { Button } from "@/components/ui/button"
 import { Printer } from "lucide-react"
 import useAxios from "@/utils/useAxios"
 
-// Styled components for thermal printer
+// Styled components for invoice print - mirror AllInvoice formatting
 const InvoiceContainer = styled.div`
-  max-width: 72mm;
+  width: 80mm;
   margin: 0 auto;
-  padding: 8px;
+  margin-top: 0;
+  padding: 0;
+  box-sizing: border-box;
   background-color: white;
   font-family: 'Courier New', monospace;
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1.3;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
 
   @media print {
-    padding: 0;
+    width: 80mm;
     margin: 0;
-    width: 72mm;
-    font-size: 14px;
+    padding: 0;
+    box-sizing: border-box;
+    font-size: 20px;
     line-height: 1.3;
+    background-color: #fff !important;
+    height: 100% !important;
   }
 
   @media screen {
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 300px; /* Better preview on screen */
+    /* preview styling removed for invoice */
+  }
+
+  hr {
+    border: none;
+    border-top: 1px dashed #000;
+    margin: 4px 0;
   }
 `
 
@@ -44,7 +51,7 @@ const CompanyInfo = styled.div`
   margin-bottom: 6px;
 
   h1 {
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
     margin: 0 0 3px 0;
     text-transform: uppercase;
@@ -53,7 +60,7 @@ const CompanyInfo = styled.div`
   }
 
   p {
-    font-size: 12px;
+    font-size: 14px;
     margin: 1px 0;
     line-height: 1.2;
     word-wrap: break-word;
@@ -61,21 +68,13 @@ const CompanyInfo = styled.div`
 `
 
 const InvoiceInfo = styled.div`
-  text-align: center;
-  margin: 6px 0;
-
-  h2 {
-    font-size: 14px;
-    font-weight: bold;
-    margin: 2px 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+  text-align: right;
+  margin: 4px 0;
 
   p {
     font-size: 12px;
-    margin: 1px 0;
-    line-height: 1.1;
+    margin: 2px 0;
+    line-height: 1.2;
   }
 `
 
@@ -85,14 +84,14 @@ const BillTo = styled.div`
   padding-bottom: 6px;
 
   h3 {
-    font-size: 12px;
+    font-size: 18px;
     font-weight: bold;
     margin: 0 0 3px 0;
     text-transform: uppercase;
   }
 
   p {
-    font-size: 11px;
+    font-size: 13px;
     margin: 1px 0;
     line-height: 1.2;
     word-wrap: break-word;
@@ -114,7 +113,7 @@ const ItemsHeader = styled.div`
   border-bottom: 1px solid #000;
   padding: 3px 0;
   font-weight: bold;
-  font-size: 10px;
+  font-size: 16px;
   text-transform: uppercase;
   text-align: center;
   
@@ -129,7 +128,7 @@ const ItemRow = styled.div`
   gap: 2px;
   padding: 3px 0;
   border-bottom: 1px dotted #ccc;
-  font-size: 10px;
+  font-size: 16px;
   align-items: start;
   
   &:last-child {
@@ -139,7 +138,7 @@ const ItemRow = styled.div`
 `
 
 const ItemName = styled.div`
-  font-size: 10px;
+  font-size: 16px;
   font-weight: bold;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -151,16 +150,16 @@ const ItemName = styled.div`
 `
 
 const ItemIMEI = styled.div`
-  font-size: 9px;
+  font-size: 14px;
   color: #666;
-  margin-top: 1px;
+  margin-top: 2px;
   line-height: 1.1;
   word-wrap: break-word;
   overflow-wrap: break-word;
 `
 
 const ItemCell = styled.div`
-  font-size: 10px;
+  font-size: 16px;
   text-align: center;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -177,7 +176,7 @@ const TotalSection = styled.div`
 const SubTotal = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 17px;
   margin: 2px 0;
   
   span:last-child {
@@ -187,7 +186,7 @@ const SubTotal = styled.div`
 
 const TotalAmount = styled.div`
   text-align: right;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: bold;
   margin: 4px 0;
   padding: 2px 0;
@@ -198,14 +197,14 @@ const TotalAmount = styled.div`
 const ThankYou = styled.div`
   margin-top: 8px;
   text-align: center;
-  font-size: 11px;
+  font-size: 17px;
   border-top: 1px dashed #000;
   padding-top: 6px;
   
   p {
     margin: 2px 0;
     font-weight: bold;
-    font-size: 11px;
+    font-size: 17px;
   }
 `
 
@@ -242,24 +241,26 @@ const Invoice = ({ transactionId }) => {
   }, [transactionId])
 
   const handlePrint = () => {
-    // Enhanced print styles for better thermal printer output
     const printStyles = `
       <style>
         @media print {
           @page {
-            size: 72mm 210mm;
+            size: 80mm 210mm;
             margin: 0;
           }
-          body {
-            font-family: 'Courier New', monospace !important;
-            font-size: 14px !important;
-            line-height: 1.3 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            color: #000 !important;
-            background: white !important;
+          html, body {
+            width: 80mm;
+            height: 210mm;
+            margin: 0;
+            padding: 0;
+            background-color: #fff !important;
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
           * {
+            background: none !important;
+            background-color: #fff !important;
+            color: #000 !important;
             box-sizing: border-box !important;
             -webkit-print-color-adjust: exact !important;
             color-adjust: exact !important;
@@ -294,9 +295,9 @@ const Invoice = ({ transactionId }) => {
     const totalDiscount = parseFloat(invoiceData.discount || 0);
     return {
       itemCount: items.length,
-      subtotal: subtotal.toFixed(2),
-      discount: totalDiscount.toFixed(2),
-      total: parseFloat(invoiceData.total_amount || 0).toFixed(2)
+      subtotal: subtotal,
+      discount: totalDiscount,
+      total: parseFloat(invoiceData.total_amount || 0)
     };
   }
 
@@ -316,20 +317,10 @@ const Invoice = ({ transactionId }) => {
         </CompanyInfo>
         
         <InvoiceInfo>
-          <h2>RECEIPT</h2>
-          <p>#{invoiceData.bill_no || 'N/A'}</p>
-          <p>{format(new Date(invoiceData.date), "dd/MM/yyyy")}</p>
-          <p>{format(new Date(invoiceData.date), "HH:mm")}</p>
+          <p>Bill No: {invoiceData.bill_no || 'N/A'}</p>
+          <p>Date: {format(new Date(invoiceData.date), "dd/MM/yyyy")}</p>
         </InvoiceInfo>
       </InvoiceHeader>
-
-      {invoiceData.name && (
-        <BillTo>
-          <h3>Customer:</h3>
-          <p>{invoiceData.name}</p>
-          {invoiceData.phone_number && <p>Phone: {invoiceData.phone_number}</p>}
-        </BillTo>
-      )}
 
       <ItemsTable>
         <ItemsHeader>
@@ -352,8 +343,8 @@ const Invoice = ({ transactionId }) => {
               )}
             </div>
             <ItemCell>1</ItemCell>
-            <ItemCell>{parseFloat(item.unit_price || 0).toFixed(2)}</ItemCell>
-            <ItemCell>{parseFloat(item.unit_price || 0).toFixed(2)}</ItemCell>
+            <ItemCell>{(item.unit_price )}</ItemCell>
+            <ItemCell>{(item.unit_price)}</ItemCell>
           </ItemRow>
         ))}
       </ItemsTable>

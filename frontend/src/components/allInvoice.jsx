@@ -7,28 +7,35 @@ import useAxios from "@/utils/useAxios"
 
 // Styled components for thermal printer
 const InvoiceContainer = styled.div`
-  max-width: 72mm;
+  width: 80mm;
   margin: 0 auto;
-  padding: 8px;
+  padding: 4px;
+  box-sizing: border-box;
   background-color: white;
   font-family: 'Courier New', monospace;
   font-size: 16px;
   line-height: 1.3;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
 
   @media print {
-    padding: 0;
+    /* full paper coverage with slight inner padding */
+    width: 80mm;
+    min-height: 210mm;
     margin: 0;
-    width: 72mm;
+    padding: 4mm;
+    box-sizing: border-box;
     font-size: 14px;
     line-height: 1.3;
   }
 
   @media screen {
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 300px; /* Better preview on screen */
+    /* remove fixed screen preview constraint */
+  }
+
+  /* hr separators styling */
+  hr {
+    border: none;
+    border-top: 1px dashed #000;
+    margin: 4px 0;
   }
 `
 

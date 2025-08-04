@@ -9,11 +9,11 @@ const InvoicePage = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gray-900 py-8">
+    <div className="min-h-screen  py-8">
       <Button
         onClick={() => navigate("/mobile")}
         variant="outline"
-        className="w-full lg:w-auto px-5 mb-4 text-white border-slate-600 bg-slate-800 print:hidden hover:bg-slate-700 hover:text-white mx-4"
+        className="w-full lg:w-auto px-5 mb-4 text-white print:hidden hover:bg-slate-700 hover:text-white mx-4"
       >
         <ArrowLeft className="mr-2 h-4 w-3" />
         Back to Mobile Dashboard
