@@ -7,12 +7,12 @@ import useAxios from "@/utils/useAxios"
 
 // Styled components for thermal printer
 const InvoiceContainer = styled.div`
-  max-width: 80mm;
+  max-width: 72mm;
   margin: 0 auto;
   padding: 8px;
   background-color: white;
   font-family: 'Courier New', monospace;
-  font-size: 12px;
+  font-size: 16px;
   line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -20,9 +20,9 @@ const InvoiceContainer = styled.div`
   @media print {
     padding: 0;
     margin: 0;
-    width: 80mm;
-    font-size: 9px;
-    line-height: 1.2;
+    width: 72mm;
+    font-size: 14px;
+    line-height: 1.3;
   }
 
   @media screen {
@@ -44,7 +44,7 @@ const CompanyInfo = styled.div`
   margin-bottom: 6px;
 
   h1 {
-    font-size: 14px;
+    font-size: 20px;
     font-weight: bold;
     margin: 0 0 3px 0;
     text-transform: uppercase;
@@ -53,7 +53,7 @@ const CompanyInfo = styled.div`
   }
 
   p {
-    font-size: 10px;
+    font-size: 14px;
     margin: 1px 0;
     line-height: 1.2;
     word-wrap: break-word;
@@ -65,7 +65,7 @@ const InvoiceInfo = styled.div`
   margin: 6px 0;
 
   h2 {
-    font-size: 12px;
+    font-size: 16px;
     font-weight: bold;
     margin: 2px 0;
     text-transform: uppercase;
@@ -73,7 +73,7 @@ const InvoiceInfo = styled.div`
   }
 
   p {
-    font-size: 9px;
+    font-size: 14px;
     margin: 1px 0;
     line-height: 1.1;
   }
@@ -85,14 +85,14 @@ const BillTo = styled.div`
   padding-bottom: 6px;
 
   h3 {
-    font-size: 10px;
+    font-size: 14px;
     font-weight: bold;
     margin: 0 0 3px 0;
     text-transform: uppercase;
   }
 
   p {
-    font-size: 9px;
+    font-size: 13px;
     margin: 1px 0;
     line-height: 1.2;
     word-wrap: break-word;
@@ -114,7 +114,7 @@ const ItemsHeader = styled.div`
   border-bottom: 1px solid #000;
   padding: 3px 0;
   font-weight: bold;
-  font-size: 8px;
+  font-size: 12px;
   text-transform: uppercase;
   text-align: center;
   
@@ -129,7 +129,7 @@ const ItemRow = styled.div`
   gap: 2px;
   padding: 3px 0;
   border-bottom: 1px dotted #ccc;
-  font-size: 8px;
+  font-size: 12px;
   align-items: start;
   
   &:last-child {
@@ -139,7 +139,7 @@ const ItemRow = styled.div`
 `
 
 const ItemName = styled.div`
-  font-size: 8px;
+  font-size: 12px;
   font-weight: bold;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -151,7 +151,7 @@ const ItemName = styled.div`
 `
 
 const ItemCell = styled.div`
-  font-size: 8px;
+  font-size: 12px;
   text-align: center;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -168,7 +168,7 @@ const TotalSection = styled.div`
 const SubTotal = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 13px;
   margin: 2px 0;
   
   span:last-child {
@@ -178,7 +178,7 @@ const SubTotal = styled.div`
 
 const TotalAmount = styled.div`
   text-align: right;
-  font-size: 10px;
+  font-size: 14px;
   font-weight: bold;
   margin: 4px 0;
   padding: 2px 0;
@@ -189,7 +189,7 @@ const TotalAmount = styled.div`
 const ThankYou = styled.div`
   margin-top: 8px;
   text-align: center;
-  font-size: 9px;
+  font-size: 13px;
   border-top: 1px dashed #000;
   padding-top: 6px;
   
@@ -237,13 +237,13 @@ const AllInvoice = ({ transactionId }) => {
       <style>
         @media print {
           @page {
-            size: 80mm auto;
+            size: 72mm 210mm;
             margin: 0;
           }
           body {
             font-family: 'Courier New', monospace !important;
-            font-size: 8px !important;
-            line-height: 1.1 !important;
+            font-size: 14px !important;
+            line-height: 1.3 !important;
             margin: 0 !important;
             padding: 0 !important;
             color: #000 !important;
