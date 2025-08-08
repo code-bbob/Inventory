@@ -459,12 +459,11 @@ class StatsView(APIView):
             product = sale.product
             daily_profit += sale.unit_price - product.cost_price
 
-        daily_profit = dailystamt-dailyptamt
-        
         monthly_profit = 0
+        for sale in monthlysales:
+            product = sale.product
+            monthly_profit += sale.unit_price - product.cost_price
 
-        monthly_profit = stamt - ptamt
-        
         stat = { 
             "enterprise" : enterprise.name,
             "daily":{
