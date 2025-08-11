@@ -314,6 +314,7 @@ class VendorTransaction(models.Model):
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE, related_name='vendor_transaction_branch',null=True,blank=True)
     base = models.BooleanField(default=False)
     type = models.CharField(max_length=20,choices=(('base','base'),('return','return'),('payment','payment')),default='base')
+    due = models.FloatField(null=True, blank=True, default=0)
     
     @transaction.atomic
     def delete(self, *args, **kwargs):
@@ -348,6 +349,7 @@ class EMIDebtorTransaction(models.Model):
     enterprise = models.ForeignKey(Enterprise, on_delete=models.CASCADE, related_name='emi_transaction_enterprise')
     sales_transaction = models.ForeignKey(SalesTransaction, on_delete=models.CASCADE, null=True, blank=True, related_name='emi_sales_transaction')  
     desc = models.TextField(null=True, blank=True)
+    due = models.FloatField(null=True, blank=True, default=0)
     def __str__(self):
         return f"EMI Transaction of {self.amount} for {self.debtor.name} on {self.date}"
     

@@ -1524,3 +1524,42 @@ class EMIDebtorStatementView(APIView):
         debtor_data = EMIDebtorSerializer(debtor).data
         tx_data = EMIDebtorTransactionSerializer(transactions, many=True).data
         return Response({'debtor_data': debtor_data, 'debtor_transactions': tx_data})
+
+
+
+class VendorStatementView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, vendorId=None, branch=None):
+        enterprise = request.user.person.enterprise
+        vendor = Vendor.objects.filter(id=vendorId, enterprise=enterprise).first()
+        vendor_transactions = VendorTransaction.objects.filter(enterprise=enterprise,vendor=vendor)
+
+        if not vendor:
+            return Response("Vendor not found", status=status.HTTP_404_NOT_FOUND)
+
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        if start_date and end_date:
+            start_date = parse_date(start_date)
+            end_date = parse_date(end_date)
+
+    
+        if start_date and end_date:
+            vendor_transactions = vendor_transactions.filter(
+                date__range=(start_date, end_date)
+            )
+        elif start_date and not end_date:
+            vendor_transactions = vendor_transactions.filter(
+                date__gte=start_date
+            )
+        elif not start_date and end_date:
+            vendor_transactions = vendor_transactions.filter(
+                date__lte=end_date
+            )
+
+        vendor_transactions = vendor_transactions.order_by('id')
+        vendor = VendorSerializer(vendor).data 
+        vts = VendorTransactionSerializer(vendor_transactions, many=True).data
+        return Response({'vendor_data': vendor, 'vendor_transactions': vts})
