@@ -1492,3 +1492,35 @@ class EMIDebtorTransactionView(APIView):
         debtor_transaction.delete()
         return Response("Deleted", status=status.HTTP_204_NO_CONTENT)
     
+class EMIDebtorStatementView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, debtorId=None, branch=None):
+        enterprise = request.user.person.enterprise
+        debtor = EMIDebtor.objects.filter(id=debtorId, enterprise=enterprise).first()
+        transactions = EMIDebtorTransaction.objects.filter(enterprise=enterprise, debtor=debtor)
+
+        if not debtor:
+            return Response("EMI Debtor not found", status=status.HTTP_404_NOT_FOUND)
+
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        if start_date and end_date:
+            start_date = parse_date(start_date)
+            end_date = parse_date(end_date)
+
+        if start_date and end_date:
+            transactions = transactions.filter(date__range=(start_date, end_date))
+        elif start_date and not end_date:
+            transactions = transactions.filter(date__gte=start_date)
+        elif not start_date and end_date:
+            transactions = transactions.filter(date__lte=end_date)
+
+        if branch:
+            transactions = transactions.filter(branch=branch)
+
+        transactions = transactions.order_by('id')
+        debtor_data = EMIDebtorSerializer(debtor).data
+        tx_data = EMIDebtorTransactionSerializer(transactions, many=True).data
+        return Response({'debtor_data': debtor_data, 'debtor_transactions': tx_data})

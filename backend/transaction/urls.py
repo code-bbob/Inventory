@@ -71,6 +71,8 @@ urlpatterns = [
 
     path('sales-return/<int:pk>/',views.SalesReturnView.as_view(),name='sales_return'),
 
+    path('emidebtor/statement/<int:debtorId>/', views.EMIDebtorStatementView.as_view(), name='emi_debtor_statement'),
+
 
 
 ]
