@@ -73,6 +73,7 @@ import AllVendorStatementPage from "./pages/allVendorStatementPage";
 import AllDebtorStatementPage from "./pages/allDebtorStatementPage";
 import EditPhoneForm from "./components/editPhoneForm";
 import InvoicePage from "./pages/invoicePage";
+import EMIDebtorStatementPage from "./pages/emiDebtorStatementPage";
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.root);
@@ -186,6 +187,7 @@ function App() {
             <Route path="emi-transactions/branch/:branchId/form" element={<EMIDebtorTransactionForm />} />
             <Route path="emi-transactions/branch/:branchId/editform/:transactionId" element={<EditEMIDebtorTransaction />} />
 
+            <Route path="emi/statement/:debtorId" element={<EMIDebtorStatementPage />} />
             <Route path="sales-report/branch/:branchId" element={<SalesReport/>}/>
           </Route>
         </Route>

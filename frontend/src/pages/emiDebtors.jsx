@@ -107,9 +107,7 @@ export default function EMIDebtorsPage() {
   const handleSearch = (e) => setSearchTerm(e.target.value);
 
   const handleDebtorClick = (debtor, e) => {
-    if (!e.target.closest(".checkbox-wrapper")) {
-      setSelectedDebtor(debtor);
-    }
+    navigate(`/mobile/emi/statement/${debtor.id}/`);
   };
 
   const handleCheckboxChange = (debtorId) => {
