@@ -21,6 +21,7 @@ urlpatterns = [
     path('vendortransaction/<int:pk>/',VendorTransactionView.as_view(), name='vendortransaction'),
 
      
+    path('vendor/statement/<int:vendorId>/',views.VendorStatementView.as_view(), name = 'vendorstatement'),
     path('scheme/',SchemeView.as_view(), name='scheme'),
     path('scheme/branch/<int:branch>/', SchemeView.as_view(), name='schemebranch'),
     path('scheme/<int:pk>/', SchemeView.as_view(), name='schemechange'),
