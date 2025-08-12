@@ -70,6 +70,7 @@ import EMIDebtorTransactions from "./pages/emiDebtorsTransaction";
 import EMIDebtorTransactionForm from "./pages/emiDebtorsTransactionForm";
 import EditEMIDebtorTransaction from "./pages/editEmiDebtorTransactions";
 import AllVendorStatementPage from "./pages/allVendorStatementPage";
+import VendorStatementPage from "./pages/vendorStatementPage";
 import AllDebtorStatementPage from "./pages/allDebtorStatementPage";
 import EditPhoneForm from "./components/editPhoneForm";
 import InvoicePage from "./pages/invoicePage";
@@ -176,6 +177,7 @@ function App() {
             {/* Vendors Section */}
             <Route path="vendors/branch/:branchId" element={<VendorPage />} />
             <Route path="vendors/branch/:branchId/brand/:id" element={<VendorBrand />} />
+            <Route path="vendors/statement/:vendorId" element={<VendorStatementPage />} />
 
             <Route path="vendor-transactions/branch/:branchId" element={<VendorTransactions />} />
             <Route path="vendor-transactions/branch/:branchId/form" element={<VendorTransactionForm />} />
