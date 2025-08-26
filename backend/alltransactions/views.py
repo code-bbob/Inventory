@@ -614,8 +614,8 @@ class SalesReportView(APIView):
         list = []
         for sale in sales:
             # purchase = Purchase.objects.filter(product = sale.product).first()
-            # profit = (sale.unit_price - purchase.unit_price) * sale.quantity
-            # total_profit += profit
+            profit = (sale.unit_price - sale.product.cost_price) * sale.quantity
+            total_profit += profit
             total_sales += sale.total_price
             list.append({
                 "date": sale.sales_transaction.date,
@@ -624,6 +624,7 @@ class SalesReportView(APIView):
                 "product": sale.product.name,
                 "unit_price": sale.unit_price,
                 "total_price": sale.total_price,
+                "profit": sale.unit_price - sale.product.cost_price,
                 "method": sale.sales_transaction.method
             })
             if sale.sales_transaction.id not in sales_transaction:
@@ -639,9 +640,11 @@ class SalesReportView(APIView):
             # "total_profit": total_profit,
             "count": count,
             "subtotal_sales": total_sales,
-            "total_discount": total_discount,
             "total_sales": total_sales - total_discount,
-            "cash_sales": cash_sales
+            "total_profit": total_profit,
+            "total_discount": total_discount,
+            "net_profit": total_profit - total_discount,
+            # "cash_sales": cash_sales
         })
         return Response(list)
      

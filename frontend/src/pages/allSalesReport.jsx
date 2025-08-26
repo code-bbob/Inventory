@@ -245,6 +245,8 @@ const AllSalesReport = () => {
                 <TableHead className="text-white print:text-black">Method</TableHead>
                 <TableHead className="text-right text-white print:text-black">Unit Price</TableHead>
                 <TableHead className="text-right text-white print:text-black">Total Price</TableHead>
+                <TableHead className="text-right text-white print:text-black">Profit</TableHead>
+
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -261,6 +263,9 @@ const AllSalesReport = () => {
                   <TableCell className="text-right text-white print:text-black">
                     {item.total_price.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
                   </TableCell>
+                  <TableCell className="text-right text-white print:text-black">
+                    {item.profit.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -275,20 +280,20 @@ const AllSalesReport = () => {
                 </span>
               </div>
               <div className="flex justify-between mb-2">
+                <span className="font-semibold text-white print:text-black">Total Sales Count:</span>
+                <span className="text-white print:text-black">{data.count}</span>
+              </div>
+              <div className="flex justify-between mb-2">
                 <span className="font-semibold text-white print:text-black">Total Discount:</span>
                 <span className="text-white print:text-black">
                   {data?.total_discount.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
                 </span>
               </div>
               <div className="flex justify-between mb-2">
-                <span className="font-semibold text-white print:text-black">Total Sales:</span>
+                <span className="font-semibold text-white print:text-black">Net Sales:</span>
                 <span className="text-white print:text-black">
                   {data?.total_sales?.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
                 </span>
-              </div>
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold text-white print:text-black">Total Sales Count:</span>
-                <span className="text-white print:text-black">{data.count}</span>
               </div>
               {isAdmin && data?.total_profit !== undefined && (
                 <div className="flex justify-between mb-2">
