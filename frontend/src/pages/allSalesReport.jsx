@@ -283,6 +283,14 @@ const AllSalesReport = () => {
                 <span className="font-semibold text-white print:text-black">Total Sales Count:</span>
                 <span className="text-white print:text-black">{data.count}</span>
               </div>
+              {isAdmin && data?.total_profit !== undefined && (
+                <div className="flex justify-between mb-2">
+                  <span className="font-semibold text-white print:text-black">Total Profit:</span>
+                  <span className="text-white print:text-black">
+                    {data?.total_profit?.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between mb-2">
                 <span className="font-semibold text-white print:text-black">Total Discount:</span>
                 <span className="text-white print:text-black">
@@ -295,20 +303,20 @@ const AllSalesReport = () => {
                   {data?.total_sales?.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
                 </span>
               </div>
-              {isAdmin && data?.total_profit !== undefined && (
+              {isAdmin && data?.net_profit !== undefined && (
                 <div className="flex justify-between mb-2">
-                  <span className="font-semibold text-white print:text-black">Total Profit:</span>
+                  <span className="font-semibold text-white print:text-black">Net Profit:</span>
                   <span className="text-white print:text-black">
-                    {data?.total_profit?.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
+                    {data?.net_profit?.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
                   </span>
                 </div>
               )}
-              <div className="flex justify-between font-bold text-lg">
+              {/* <div className="flex justify-between font-bold text-lg">
                  <span className="text-white print:text-black">Cash Sales:</span>
                 <span className="text-white print:text-black">
                   {data?.cash_sales?.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
                 </span> 
-              </div>
+              </div> */}
            
             </div>
           </div>
