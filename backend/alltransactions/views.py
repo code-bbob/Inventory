@@ -605,7 +605,7 @@ class SalesReportView(APIView):
 
         count = sales.count()
 
-        # total_profit = 0
+        total_profit = 0
         total_sales = 0
         total_discount = 0
         cash_sales = 0
