@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom"
 import jsPDF from "jspdf"
 import "jspdf-autotable"
 import { useParams } from "react-router-dom"
+import useRole from "../hooks/useRole"
 const AllSalesReport = () => {
   const { branchId } = useParams()
   const [data, setData] = useState(null)
@@ -24,6 +25,7 @@ const AllSalesReport = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const api = useAxios()
   const navigate = useNavigate()
+  const { isAdmin } = useRole()
 
   useEffect(() => {
     fetchSalesData()
@@ -81,7 +83,9 @@ const AllSalesReport = () => {
   
     // Add summary row
     csvContent += `\nTotal Sales: ,,,${data.total_sales}\n`
-    // csvContent += `Total Profit: ,,,${data.total_price}\n`
+    if (isAdmin && data.total_profit !== undefined) {
+      csvContent += `Total Profit: ,,,${data.total_profit}\n`
+    }
     csvContent += `Total Transactions: ,,,${data.count}\n`
   
     // Create a downloadable CSV file
@@ -105,7 +109,7 @@ const AllSalesReport = () => {
     doc.text("Sales Report", 14, 10)
   
     // Table Headers
-    const headers = [["Date", "Product", "Brand", "Quantity", "Unit Price", "Total Price"]]
+  const headers = [["Date", "Product", "Brand", "Quantity", "Unit Price", "Total Price"]]
   
     // Table Data
     const tableData = data.sales.map((item) => [
@@ -119,7 +123,9 @@ const AllSalesReport = () => {
   
     // Add Summary Row
     tableData.push(["", "", "", "Total Sales", data.total_sales])
-    // tableData.push(["", "", "", "Total Profit", data.total_profit])
+    if (isAdmin && data.total_profit !== undefined) {
+      tableData.push(["", "", "", "Total Profit", data.total_profit])
+    }
     tableData.push(["", "", "", "Total Transactions", data.count])
   
     // Generate table
@@ -284,6 +290,14 @@ const AllSalesReport = () => {
                 <span className="font-semibold text-white print:text-black">Total Sales Count:</span>
                 <span className="text-white print:text-black">{data.count}</span>
               </div>
+              {isAdmin && data?.total_profit !== undefined && (
+                <div className="flex justify-between mb-2">
+                  <span className="font-semibold text-white print:text-black">Total Profit:</span>
+                  <span className="text-white print:text-black">
+                    {data?.total_profit?.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between font-bold text-lg">
                  <span className="text-white print:text-black">Cash Sales:</span>
                 <span className="text-white print:text-black">

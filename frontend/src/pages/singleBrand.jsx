@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import NewPhoneDialog from "../components/newPhoneDialog"
+import useRole from "../hooks/useRole"
 
 export default function BrandPhones() {
   const api = useAxios()
@@ -32,6 +33,7 @@ export default function BrandPhones() {
   const navigate = useNavigate()
   const [selectedPhones, setSelectedPhones] = useState([])
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const { isAdmin } = useRole()
   
   // New Phone Dialog states
   const [showNewPhoneDialog, setShowNewPhoneDialog] = useState(false)
@@ -200,7 +202,7 @@ export default function BrandPhones() {
               <div className="col-span-1 flex items-center justify-center"></div>
               <div className="col-span-3 lg:col-span-5">Particulars</div>
               <div className="col-span-2 lg:col-span-2 text-center">Quantity</div>
-              <div className="col-span-3 lg:col-span-2 text-right">Cost Price</div>
+              {isAdmin && <div className="col-span-3 lg:col-span-2 text-right">Cost Price</div>}
               <div className="col-span-3 lg:col-span-2 text-right">Selling Price</div>
             </div>
             {filteredPhones?.map((phone) => (
@@ -233,9 +235,11 @@ export default function BrandPhones() {
                 >
                   {phone.count}
                 </div>
-                <div className="col-span-3 lg:col-span-2 text-right text-white text-xs sm:text-sm lg:text-base">
-                  {phone.cost_price ? `RS. ${phone.cost_price.toLocaleString()}` : "N/A"}
-                </div>
+                {isAdmin && (
+                  <div className="col-span-3 lg:col-span-2 text-right text-white text-xs sm:text-sm lg:text-base">
+                    {phone.cost_price ? `RS. ${phone.cost_price.toLocaleString()}` : "N/A"}
+                  </div>
+                )}
                 <div className="col-span-3 lg:col-span-2 text-right text-white text-xs sm:text-sm lg:text-base">
                   {phone.cost_price ? `RS. ${phone.selling_price.toLocaleString()}` : "N/A"}
                 </div>

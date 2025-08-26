@@ -29,6 +29,7 @@ import { logout } from "../redux/accessSlice"
 import Sidebar from "./sidebar"
 import ChartsDashboard from "./charts-dashboard"
 import { useBranchManagement } from "../hooks/useBranchManagement"
+import useRole from "../hooks/useRole"
 
 export default function LandingPage() {
   const api = useAxios()
@@ -39,6 +40,7 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const dispatch = useDispatch()
+  const { isAdmin } = useRole()
   
   // Use branch management hook
   const { navigateWithBranch } = useBranchManagement()
@@ -134,7 +136,7 @@ export default function LandingPage() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
           <StatCard
             title="Total Purchases"
             value={currentStats.purchases}
@@ -149,13 +151,13 @@ export default function LandingPage() {
             icon={<TrendingUp className="h-6 w-6 text-green-400" />}
             onClick={() => navigateWithBranch("sales", true)}
           />
-          <StatCard 
-            title="Profit"
-            value={currentStats.profit}s
-
-            icon={<Zap className="h-6 w-6 text-yellow-400" />}
-            // onClick={() => navigate("/profit")}
-          />
+          {isAdmin && (
+            <StatCard 
+              title="Profit"
+              value={currentStats.profit}
+              icon={<Zap className="h-6 w-6 text-yellow-400" />}
+            />
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 mb-8">
