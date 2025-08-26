@@ -5,27 +5,33 @@ import { Button } from "@/components/ui/button"
 import { Printer } from "lucide-react"
 import useAxios from "@/utils/useAxios"
 
-// Styled components for invoice print - mirror AllInvoice formatting
+// Styled components for A4 invoice print
 const InvoiceContainer = styled.div`
-  width: 80mm;
+  width: 100%;
+  max-width: 900px;
   margin: 0 auto;
-  margin-top: 0;
-  padding: 0;
+  padding: 24px;
   box-sizing: border-box;
   background-color: white;
-  font-family: 'Courier New', monospace;
-  font-size: 20px;
-  line-height: 1.3;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 12px;
+  line-height: 1.5;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 
   @media print {
-    width: 80mm;
+    width: auto;
+    max-width: none;
     margin: 0;
-    padding: 0;
+    padding: 0 0;
     box-sizing: border-box;
-    font-size: 20px;
-    line-height: 1.3;
+    font-size: 12px;
+    line-height: 1.5;
     background-color: #fff !important;
-    height: 100% !important;
+    height: auto !important;
+    border: none;
+    box-shadow: none;
   }
 
   @media screen {
@@ -40,27 +46,29 @@ const InvoiceContainer = styled.div`
 `
 
 const InvoiceHeader = styled.div`
-  text-align: center;
-  margin-bottom: 8px;
-  border-bottom: 1px dashed #000;
-  padding-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
 `
 
 const CompanyInfo = styled.div`
-  text-align: center;
-  margin-bottom: 6px;
+  text-align: left;
+  margin-bottom: 0;
 
   h1 {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     margin: 0 0 3px 0;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     word-wrap: break-word;
   }
 
   p {
-    font-size: 14px;
+    font-size: 12px;
     margin: 1px 0;
     line-height: 1.2;
     word-wrap: break-word;
@@ -69,7 +77,7 @@ const CompanyInfo = styled.div`
 
 const InvoiceInfo = styled.div`
   text-align: right;
-  margin: 4px 0;
+  margin: 0;
 
   p {
     font-size: 12px;
@@ -108,12 +116,12 @@ const ItemsTable = styled.div`
 
 const ItemsHeader = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 6fr 1fr 2fr 2fr;
   gap: 2px;
-  border-bottom: 1px solid #000;
-  padding: 3px 0;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 6px 0;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 12px;
   text-transform: uppercase;
   text-align: center;
   
@@ -124,21 +132,21 @@ const ItemsHeader = styled.div`
 
 const ItemRow = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 6fr 1fr 2fr 2fr;
   gap: 2px;
-  padding: 3px 0;
-  border-bottom: 1px dotted #ccc;
-  font-size: 16px;
+  padding: 6px 0;
+  border-bottom: 1px dotted #ddd;
+  font-size: 12px;
   align-items: start;
   
   &:last-child {
-    border-bottom: 1px dashed #000;
-    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
   }
 `
 
 const ItemName = styled.div`
-  font-size: 16px;
+  font-size: 12px;
   font-weight: bold;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -150,7 +158,7 @@ const ItemName = styled.div`
 `
 
 const ItemIMEI = styled.div`
-  font-size: 14px;
+  font-size: 11px;
   color: #666;
   margin-top: 2px;
   line-height: 1.1;
@@ -159,7 +167,7 @@ const ItemIMEI = styled.div`
 `
 
 const ItemCell = styled.div`
-  font-size: 16px;
+  font-size: 12px;
   text-align: center;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -170,13 +178,13 @@ const ItemCell = styled.div`
 const TotalSection = styled.div`
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px solid #000;
+  border-top: 1px solid #e5e7eb;
 `
 
 const SubTotal = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 17px;
+  font-size: 12px;
   margin: 2px 0;
   
   span:last-child {
@@ -186,25 +194,25 @@ const SubTotal = styled.div`
 
 const TotalAmount = styled.div`
   text-align: right;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: bold;
   margin: 4px 0;
   padding: 2px 0;
-  border-top: 1px solid #000;
+  border-top: 1px solid #e5e7eb;
   text-transform: uppercase;
 `
 
 const ThankYou = styled.div`
   margin-top: 8px;
   text-align: center;
-  font-size: 17px;
-  border-top: 1px dashed #000;
+  font-size: 12px;
+  border-top: 1px dashed #e5e7eb;
   padding-top: 6px;
   
   p {
     margin: 2px 0;
-    font-weight: bold;
-    font-size: 17px;
+    font-weight: 600;
+    font-size: 12px;
   }
 `
 
@@ -229,7 +237,19 @@ const Invoice = ({ transactionId }) => {
     const fetchInvoiceData = async () => {
       try {
         const response = await api.get(`transaction/salestransaction/${transactionId}/`)
-        setInvoiceData(response.data)
+        let data = response.data
+        // Fallback: if address/contact missing, fetch enterprise info
+        if (!data.enterprise_address || !data.enterprise_contact) {
+          try {
+            const einfo = await api.get('enterprise/info/')
+            data = { ...data, ...{
+              enterprise_name: data.enterprise_name || einfo.data?.name,
+              enterprise_address: data.enterprise_address || einfo.data?.address,
+              enterprise_contact: data.enterprise_contact || einfo.data?.contact,
+            }}
+          } catch {}
+        }
+        setInvoiceData(data)
         setLoading(false)
       } catch (err) {
         setError("Failed to fetch invoice data")
@@ -245,12 +265,12 @@ const Invoice = ({ transactionId }) => {
       <style>
         @media print {
           @page {
-            size: 80mm 210mm;
-            margin: 0;
+            size: A4 portrait;
+            margin: 12mm;
           }
           html, body {
-            width: 80mm;
-            height: 210mm;
+            width: auto;
+            height: auto;
             margin: 0;
             padding: 0;
             background-color: #fff !important;
@@ -259,7 +279,6 @@ const Invoice = ({ transactionId }) => {
           }
           * {
             background: none !important;
-            background-color: #fff !important;
             color: #000 !important;
             box-sizing: border-box !important;
             -webkit-print-color-adjust: exact !important;
@@ -343,8 +362,8 @@ const Invoice = ({ transactionId }) => {
               )}
             </div>
             <ItemCell>1</ItemCell>
-            <ItemCell>{(item.unit_price )}</ItemCell>
-            <ItemCell>{(item.unit_price)}</ItemCell>
+            <ItemCell>{parseFloat(item.unit_price || 0).toFixed(2)}</ItemCell>
+            <ItemCell>{parseFloat(item.unit_price || 0).toFixed(2)}</ItemCell>
           </ItemRow>
         ))}
       </ItemsTable>
@@ -352,18 +371,18 @@ const Invoice = ({ transactionId }) => {
       <TotalSection>
         <SubTotal>
           <span>Items: {totals.itemCount}</span>
-          <span>Subtotal: RS. {totals.subtotal}</span>
+          <span>Subtotal: RS. {totals.subtotal.toFixed ? totals.subtotal.toFixed(2) : totals.subtotal}</span>
         </SubTotal>
         
         {parseFloat(totals.discount) > 0 && (
           <SubTotal>
             <span></span>
-            <span>Discount: -RS. {totals.discount}</span>
+            <span>Discount: -RS. {totals.discount.toFixed ? totals.discount.toFixed(2) : totals.discount}</span>
           </SubTotal>
         )}
         
         <TotalAmount>
-          Total: RS. {totals.total}
+          Total: RS. {totals.total.toFixed ? totals.total.toFixed(2) : totals.total}
         </TotalAmount>
       </TotalSection>
 

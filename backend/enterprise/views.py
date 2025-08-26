@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils.dateparse import parse_date
 from datetime import datetime, date
-from .serializers import BranchSerializer
-from .models import Branch
+from .serializers import BranchSerializer, EnterpriseSerializer
+from .models import Branch, Enterprise
 from alltransactions.models import Staff
 from alltransactions.serializers import StaffSerializer
 
@@ -83,3 +83,11 @@ class RoleView(APIView):
         user = request.user
         role = user.person.role
         return Response(role)
+
+class EnterpriseInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        enterprise = request.user.person.enterprise
+        serializer = EnterpriseSerializer(enterprise)
+        return Response(serializer.data)

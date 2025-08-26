@@ -928,6 +928,9 @@ from rest_framework import serializers
 class SalesTransactionSerializer(serializers.ModelSerializer):
     sales = SalesSerializer(many=True)
     date = serializers.DateField()
+    enterprise_name = serializers.SerializerMethodField(read_only=True)
+    enterprise_address = serializers.SerializerMethodField(read_only=True)
+    enterprise_contact = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = SalesTransaction
@@ -1184,6 +1187,22 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
         instance.total_amount = instance.calculate_total_amount()
         instance.save()
         return instance
+
+    def get_enterprise_name(self, obj):
+        return obj.enterprise.name if obj.enterprise else None
+
+    def get_enterprise_address(self, obj):
+        # Address may be null if not set
+        try:
+            return getattr(obj.enterprise, 'address', None)
+        except Exception:
+            return None
+
+    def get_enterprise_contact(self, obj):
+        try:
+            return getattr(obj.enterprise, 'contact', None)
+        except Exception:
+            return None
 
 
 

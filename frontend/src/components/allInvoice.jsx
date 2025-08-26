@@ -5,26 +5,31 @@ import { Button } from "@/components/ui/button"
 import { Printer } from "lucide-react"
 import useAxios from "@/utils/useAxios"
 
-// Styled components for thermal printer
+// Styled components for A4 invoice
 const InvoiceContainer = styled.div`
-  width: 80mm;
+  width: 100%;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 4px;
+  padding: 24px;
   box-sizing: border-box;
   background-color: white;
-  font-family: 'Courier New', monospace;
-  font-size: 16px;
-  line-height: 1.3;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 12px;
+  line-height: 1.5;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 
   @media print {
-    /* full paper coverage with slight inner padding */
-    width: 80mm;
-    min-height: 210mm;
+    width: auto;
+    max-width: none;
     margin: 0;
-    padding: 4mm;
+    padding: 0;
     box-sizing: border-box;
-    font-size: 14px;
-    line-height: 1.3;
+    font-size: 12px;
+    line-height: 1.5;
+    border: none;
+    box-shadow: none;
   }
 
   @media screen {
@@ -40,15 +45,17 @@ const InvoiceContainer = styled.div`
 `
 
 const InvoiceHeader = styled.div`
-  text-align: center;
-  margin-bottom: 8px;
-  border-bottom: 1px dashed #000;
-  padding-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
 `
 
 const CompanyInfo = styled.div`
-  text-align: center;
-  margin-bottom: 6px;
+  text-align: left;
+  margin-bottom: 0;
 
   h1 {
     font-size: 20px;
@@ -60,7 +67,7 @@ const CompanyInfo = styled.div`
   }
 
   p {
-    font-size: 14px;
+    font-size: 12px;
     margin: 1px 0;
     line-height: 1.2;
     word-wrap: break-word;
@@ -68,21 +75,21 @@ const CompanyInfo = styled.div`
 `
 
 const InvoiceInfo = styled.div`
-  text-align: center;
-  margin: 6px 0;
+  text-align: right;
+  margin: 0;
 
   h2 {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
-    margin: 2px 0;
+    margin: 0 0 2px 0;
     text-transform: uppercase;
     letter-spacing: 1px;
   }
 
   p {
-    font-size: 14px;
-    margin: 1px 0;
-    line-height: 1.1;
+    font-size: 12px;
+    margin: 2px 0;
+    line-height: 1.2;
   }
 `
 
@@ -116,10 +123,10 @@ const ItemsTable = styled.div`
 
 const ItemsHeader = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 6fr 1fr 2fr 2fr;
   gap: 2px;
-  border-bottom: 1px solid #000;
-  padding: 3px 0;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 6px 0;
   font-weight: bold;
   font-size: 12px;
   text-transform: uppercase;
@@ -132,16 +139,16 @@ const ItemsHeader = styled.div`
 
 const ItemRow = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 6fr 1fr 2fr 2fr;
   gap: 2px;
-  padding: 3px 0;
-  border-bottom: 1px dotted #ccc;
+  padding: 6px 0;
+  border-bottom: 1px dotted #ddd;
   font-size: 12px;
   align-items: start;
   
   &:last-child {
-    border-bottom: 1px dashed #000;
-    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
   }
 `
 
@@ -196,13 +203,13 @@ const TotalAmount = styled.div`
 const ThankYou = styled.div`
   margin-top: 8px;
   text-align: center;
-  font-size: 13px;
-  border-top: 1px dashed #000;
+  font-size: 12px;
+  border-top: 1px dashed #e5e7eb;
   padding-top: 6px;
   
   p {
     margin: 2px 0;
-    font-weight: bold;
+    font-weight: 600;
   }
 `
 
@@ -239,18 +246,18 @@ const AllInvoice = ({ transactionId }) => {
   }, [transactionId])
 
   const handlePrint = () => {
-    // Enhanced print styles for better thermal printer output
+    // A4 print styles
     const printStyles = `
       <style>
         @media print {
           @page {
-            size: 72mm 210mm;
-            margin: 0;
+            size: A4 portrait;
+            margin: 12mm;
           }
           body {
-            font-family: 'Courier New', monospace !important;
-            font-size: 14px !important;
-            line-height: 1.3 !important;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji" !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
             margin: 0 !important;
             padding: 0 !important;
             color: #000 !important;
@@ -303,10 +310,6 @@ const AllInvoice = ({ transactionId }) => {
     };
   }
 
-  if (loading) return <div>Loading invoice...</div>
-  if (error) return <div>{error}</div>
-  if (!invoiceData) return null
-
   if (loading) return <div style={{textAlign: 'center', padding: '20px', fontFamily: 'monospace'}}>Loading invoice...</div>
   if (error) return <div style={{textAlign: 'center', padding: '20px', color: 'red', fontFamily: 'monospace'}}>{error}</div>
   if (!invoiceData) return null
@@ -317,16 +320,14 @@ const AllInvoice = ({ transactionId }) => {
     <InvoiceContainer className="no-break">
       <InvoiceHeader>
         <CompanyInfo>
-          <h1>Digitech Enterprises</h1>
-          <p>Basundhara -03, Kathmandu</p>
-          <p>Phone: (+977) 9851193055</p>
+          <h1>{invoiceData.enterprise_name || 'Enterprise'}</h1>
+          {invoiceData.enterprise_address && <p>{invoiceData.enterprise_address}</p>}
+          {invoiceData.enterprise_contact && <p>{invoiceData.enterprise_contact}</p>}
         </CompanyInfo>
-        
         <InvoiceInfo>
           <h2>RECEIPT</h2>
           <p>#{invoiceData.bill_no || 'N/A'}</p>
-          <p>{format(new Date(invoiceData.date), "dd/MM/yyyy")}</p>
-          <p>{format(new Date(invoiceData.date), "HH:mm")}</p>
+          <p>{format(new Date(invoiceData.date), "dd/MM/yyyy")} {format(new Date(invoiceData.date), "HH:mm")}</p>
         </InvoiceInfo>
       </InvoiceHeader>
 
