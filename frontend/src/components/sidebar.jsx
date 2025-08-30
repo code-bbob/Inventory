@@ -198,7 +198,7 @@ export default function Sidebar() {
                   setIsOpen(false)
                 }}
               >
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-fuchsia-300 to-pink-300 drop-shadow-sm">Inventory</span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-fuchsia-300 to-pink-300 drop-shadow-sm">Phone Inventory</span>
               </div>
               {/* Mode Switch: All | Phone (prominent with icons) */}
               <div className="flex justify-center mb-3">
