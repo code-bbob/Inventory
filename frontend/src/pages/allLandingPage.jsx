@@ -30,6 +30,7 @@ import Sidebar from "../components/allsidebar"
 import ChartsDashboard from "../components/charts-dashboard"
 import { clearSelectedBranch } from "../utils/branchUtils"
 import { useBranchManagement } from "../hooks/useBranchManagement"
+import useRole from "../hooks/useRole"
 
 export default function AllLandingPage() {
   const api = useAxios()
@@ -40,6 +41,7 @@ export default function AllLandingPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const dispatch = useDispatch()
+  const { isAdmin } = useRole()
   
   // Use branch management hook
   const { navigateWithBranch } = useBranchManagement()
@@ -150,13 +152,13 @@ export default function AllLandingPage() {
             icon={<TrendingUp className="h-6 w-6 text-green-400" />}
             onClick={() => navigateWithBranch("sales")}
           />
-          <StatCard 
-            title="Profit"
-            value={currentStats.profit}s
-
-            icon={<Zap className="h-6 w-6 text-yellow-400" />}
-            // onClick={() => navigate("/profit")}
-          />
+          {isAdmin && (
+            <StatCard 
+              title="Profit"
+              value={currentStats.profit}
+              icon={<Zap className="h-6 w-6 text-yellow-400" />}
+            />
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 mb-8">

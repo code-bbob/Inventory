@@ -9,7 +9,7 @@ const InvoicePage = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen  py-8">
+    <div className="min-h-screen py-8 print:bg-white">
       <Button
         onClick={() => navigate("/mobile")}
         variant="outline"

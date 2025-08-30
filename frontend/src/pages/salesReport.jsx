@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom"
 import { useParams } from "react-router-dom"
 import jsPDF from "jspdf"
 import "jspdf-autotable"
+import useRole from "../hooks/useRole"
 
 
 const SalesReport = () => {
@@ -27,6 +28,7 @@ const SalesReport = () => {
   const api = useAxios()
   const navigate = useNavigate()
   const {branchId} = useParams()
+  const { isAdmin } = useRole()
 
   useEffect(() => {
     fetchSalesData()
@@ -77,11 +79,14 @@ const SalesReport = () => {
     }
   
     // Create CSV header
-    let csvContent = "Date,Phone,Brand,IMEI,Unit Price,Profit,Method\n"
+    let csvContent = isAdmin
+      ? "Date,Phone,Brand,IMEI,Unit Price,Profit,Method\n"
+      : "Date,Phone,Brand,IMEI,Unit Price,Method\n"
   
     // Convert each sale into a CSV row
     data.sales.forEach((item) => {
-      const row = `${item.date},${item.phone},${item.brand},${item.imei_number},${item.unit_price},${item.profit},${item.method}`
+      const common = `${item.date},${item.phone},${item.brand},${item.imei_number},${item.unit_price}`
+      const row = isAdmin ? `${common},${item.profit},${item.method}` : `${common},${item.method}`
       csvContent += row + "\n"
     })
   
@@ -89,7 +94,7 @@ const SalesReport = () => {
     csvContent += `\nSubtotal Sales: ,,,${data.subtotal_sales}\n`
     csvContent += `Total Discount: ,,,${data.total_discount}\n`
     csvContent += `Total Sales: ,,,${data.total_sales}\n`
-    csvContent += `Total Profit: ,,,${data.total_profit}\n`
+    if (isAdmin) csvContent += `Total Profit: ,,,${data.total_profit}\n`
     csvContent += `Cash Sales: ,,,${data.cash_sales}\n`
     csvContent += `Total Transactions: ,,,${data.count}\n`
   
@@ -123,24 +128,24 @@ const SalesReport = () => {
     doc.text("Sales Report", 14, 10)
   
     // Table Headers
-    const headers = [["Date", "Phone", "Brand", "IMEI", "Unit Price", "Profit", "Method"]]
+    const headers = [
+      isAdmin
+        ? ["Date", "Phone", "Brand", "IMEI", "Unit Price", "Profit", "Method"]
+        : ["Date", "Phone", "Brand", "IMEI", "Unit Price", "Method"]
+    ]
   
     // Table Data
-    const tableData = data.sales.map((item) => [
-      item.date,
-      item.phone,
-      item.brand,
-      item.imei_number,
-      item.unit_price,
-      item.profit,
-      item.method,
-    ])
+    const tableData = data.sales.map((item) => (
+      isAdmin
+        ? [item.date, item.phone, item.brand, item.imei_number, item.unit_price, item.profit, item.method]
+        : [item.date, item.phone, item.brand, item.imei_number, item.unit_price, item.method]
+    ))
   
     // Add Summary Row
     tableData.push(["", "", "", "Subtotal Sales", data.subtotal_sales])
     tableData.push(["", "", "", "Total Discount", data.total_discount])
     tableData.push(["", "", "", "Total Sales", data.total_sales])
-    tableData.push(["", "", "", "Total Profit", data.total_profit])
+    if (isAdmin) tableData.push(["", "", "", "Total Profit", data.total_profit])
     tableData.push(["", "", "", "Cash Sales", data.cash_sales])
     tableData.push(["", "", "", "Total Transactions", data.count])
   
@@ -273,7 +278,9 @@ const SalesReport = () => {
                 <TableHead className="text-white print:text-black">IMEI</TableHead>
                 <TableHead className="text-white print:text-black">Method</TableHead>
                 <TableHead className="text-right text-white print:text-black">Unit Price</TableHead>
-                <TableHead className="text-right text-white print:text-black">Profit</TableHead>
+                {isAdmin && (
+                  <TableHead className="text-right text-white print:text-black">Profit</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -287,9 +294,11 @@ const SalesReport = () => {
                   <TableCell className="text-right text-white print:text-black">
                     {item.unit_price.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
                   </TableCell>
-                  <TableCell className="text-right text-white print:text-black">
-                    {item.profit.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
-                  </TableCell>
+                  {isAdmin && (
+                    <TableCell className="text-right text-white print:text-black">
+                      {item.profit.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -319,12 +328,14 @@ const SalesReport = () => {
                 <span className="font-semibold text-white print:text-black">Total Sales Count:</span>
                 <span className="text-white print:text-black">{data.count}</span>
               </div>
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold text-white print:text-black">Total Profit:</span>
-                <span className="text-white print:text-black">
-                  {data?.total_profit?.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
-                </span>
-              </div>
+              {isAdmin && (
+                <div className="flex justify-between mb-2">
+                  <span className="font-semibold text-white print:text-black">Total Profit:</span>
+                  <span className="text-white print:text-black">
+                    {data?.total_profit?.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between font-bold text-lg">
                 <span className="text-white print:text-black">Cash Sales:</span>
                 <span className="text-white print:text-black">

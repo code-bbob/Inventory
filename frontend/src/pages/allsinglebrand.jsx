@@ -34,11 +34,13 @@ import { Label } from "@/components/ui/label";
 
 import Select from "react-select";
 import clsx from "clsx";
+import useRole from "../hooks/useRole";
 
 export default function AllBrandProducts() {
   const api = useAxios();
   const { branchId, id } = useParams();
   const navigate = useNavigate();
+  const { isAdmin } = useRole();
 
   // Core state
   const [loading, setLoading] = useState(true);
@@ -504,7 +506,9 @@ export default function AllBrandProducts() {
               {[
                 ["Name", selectedProduct?.name],
                 ["Quantity", selectedProduct?.count],
-                ["Cost Price", selectedProduct?.cost_price ? `RS. ${selectedProduct.cost_price.toLocaleString()}` : "N/A"],
+                ...(isAdmin
+                  ? [["Cost Price", selectedProduct?.cost_price ? `RS. ${selectedProduct.cost_price.toLocaleString()}` : "N/A"]]
+                  : []),
                 ["Selling Price", selectedProduct?.selling_price ? `RS. ${selectedProduct.selling_price.toLocaleString()}` : "N/A"],
                 ["Stock Price", selectedProduct?.stock ? `RS. ${selectedProduct.stock.toLocaleString()}` : "N/A"],
               ].map(([label, val]) => (

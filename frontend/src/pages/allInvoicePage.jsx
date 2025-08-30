@@ -10,7 +10,7 @@ const AllInvoicePage = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen bg-gray-100 py-8 print:bg-white">
          <Button
         onClick={() => navigate("/")}
         variant="outline"
