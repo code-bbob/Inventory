@@ -138,6 +138,7 @@ export default function AllVendorPage() {
   };
 
   const handleCheckboxChange = (id) => {
+    
     setSelectedVendors((prev) =>
       prev.includes(id) ? prev.filter((vId) => vId !== id) : [...prev, id]
     );
@@ -240,6 +241,7 @@ export default function AllVendorPage() {
                   <Checkbox
                     checked={selectedVendors.includes(vendor.id)}
                     onCheckedChange={() => handleCheckboxChange(vendor.id)}
+                    onClick={(e) => e.stopPropagation()}
                     className="border-gray-400"
                   />
                 </div>
