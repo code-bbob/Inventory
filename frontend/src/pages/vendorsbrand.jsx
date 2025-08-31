@@ -143,7 +143,7 @@ export default function VendorBrand() {
               />
             </div>
             <Button
-              onClick={() => navigate('/mobile/inventory')}
+              onClick={() => navigate('/mobile/inventory/branch/'+ branchId)}
               variant="outline"
               className="w-full sm:w-auto px-5 text-slate-900 border-white hover:bg-gray-500 hover:text-slate-900"
             >

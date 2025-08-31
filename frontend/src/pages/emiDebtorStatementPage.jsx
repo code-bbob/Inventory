@@ -78,7 +78,19 @@ export default function EMIDebtorStatementPage() {
     doc.save(`EMI_Debtor_Statement_${data.debtor_data.name}.pdf`);
   };
 
-  const transactionsWithBalance = data ? data.debtor_transactions.map(t=>({...t,runningBalance:t.due})) : [];
+  // Implements due calculation: add negative amounts, subtract positive amounts for each row
+  const transactionsWithBalance = data ? data.debtor_transactions.reduce((acc, transaction, idx) => {
+    let due;
+    if (idx === 0) {
+      due = transaction.previous_due !== undefined ? transaction.previous_due : 0;
+    } else {
+      due = acc[idx-1].due;
+    }
+    const amount = Number(transaction.totalAmount ?? transaction.amount);
+      due -= amount;
+    acc.push({ ...transaction, due });
+    return acc;
+  }, []) : [];
   const getColor = amt => amt>0 ? 'text-green-400' : 'text-red-400';
 
   if(loading) return <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white">Loading EMI debtor statement...</div>;
@@ -150,7 +162,7 @@ export default function EMIDebtorStatementPage() {
                     <TableCell className="text-white print:text-black capitalize">{tx.method}</TableCell>
                     <TableCell className="text-white print:text-black">{tx.cheque_number||'-'}</TableCell>
                     <TableCell className={`text-right font-semibold ${getColor(tx.amount)} print:text-black`}>{tx.amount>0?'-': ''}NPR {Math.abs(tx.amount).toLocaleString()}</TableCell>
-                    {/* <TableCell className="text-right font-semibold text-white print:text-black">NPR {tx.due.toLocaleString()}</TableCell> */}
+                    <TableCell className="text-right font-semibold text-white print:text-black">NPR {tx.due.toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

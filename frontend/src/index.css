@@ -74,3 +74,25 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+      display: none;
+  }
+
+  /* Custom scrollbar for Webkit browsers */
+  .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+      background-color: theme('colors.gray.400');
+      border-radius: 9999px;
+  }
+}

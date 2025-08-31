@@ -315,7 +315,28 @@ class VendorView(APIView):
         if serializer.is_valid(raise_exception = True):
             serializer.save()
             return Response(serializer.data)
-    
+
+    def patch(self,request,pk):
+        role = request.user.person.role
+        if role != "Admin":
+            return Response("Unauthorized")
+        data = request.data
+        data["enterprise"] = request.user.person.enterprise.id
+        vendor = Vendor.objects.get(id=pk)
+        serializer = VendorSerializer(vendor,data=data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+    def delete(self,request,pk):
+        role = request.user.person.role
+        if role != "Admin":
+            return Response("Unauthorized")
+        vendor = Vendor.objects.get(id=pk)
+        vendor.delete()
+        return Response("Deleted")
+
 class VendorTransactionView(APIView):
     permission_classes = [IsAuthenticated]
 

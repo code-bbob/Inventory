@@ -251,11 +251,17 @@ const handleDownloadCSV = () => {
   };
 
   const calculateRunningBalance = (transactions) => {
-    let runningBalance = 0;
-    return transactions.map((transaction) => {
-      runningBalance = transaction.due;
-      return { ...transaction, runningBalance };
-    });
+    // Implements due calculation: add negative amounts, subtract positive amounts for each row
+    let due = 0;
+    return transactions.reduce((acc, transaction, idx) => {
+      if (idx === 0) {
+        due = transaction.previous_due !== undefined ? transaction.previous_due : 0;
+      }
+      const amount = Number(transaction.totalAmount ?? transaction.amount);
+        due -= amount;
+      acc.push({ ...transaction, due });
+      return acc;
+    }, []);
   };
 
   const getTransactionTypeColor = (amount) => {

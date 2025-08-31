@@ -118,8 +118,9 @@ function EditPurchaseTransactionForm() {
       setFilteredPhones(filtered);  
     }, [vendors]);
 
-  const handleDelete = (e) => {
-    api.delete(`transaction/purchasetransaction/${purchaseId}/`)
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    await api.delete(`transaction/purchasetransaction/${purchaseId}/`);
     navigate('/mobile/purchases/branch/' + branchId);
   }
 

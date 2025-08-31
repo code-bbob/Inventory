@@ -6,6 +6,7 @@ urlpatterns = [
     path('purchasetransaction/branch/<int:branch>/', views.PurchaseTransactionView.as_view(), name='purchase'),
     path('purchasetransaction/<int:pk>/', views.PurchaseTransactionView.as_view(), name='purchase'),
     path('vendor/', views.VendorView.as_view(), name='vendor'),
+    path('vendor/<int:pk>/', views.VendorView.as_view(), name='vendor'),
     path('vendor/branch/<int:branch>/', views.VendorView.as_view(), name='vendor'),
     path('salestransaction/', views.SalesTransactionView.as_view(), name='sales'),
     path('salestransaction/branch/<int:branch>/', views.SalesTransactionView.as_view(), name='sales'),
