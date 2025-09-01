@@ -672,17 +672,19 @@ class SalesReportView(APIView):
         return Response(list)
      
 class NextBillNo(APIView):
-    def get(self,request):
+    def get(self, request):
         max_bill_no = SalesTransaction.objects.filter(
             enterprise=request.user.person.enterprise
-        ).aggregate(max_bill_no=Max('bill_no'))['max_bill_no']
+        ).aggregate(
+            max_bill_no=Max(Cast('bill_no', output_field=IntegerField()))
+        )['max_bill_no']
         
         if max_bill_no is None:
             next_bill_no = 1
         else:
             next_bill_no = max_bill_no + 1
-        
-        return Response({'bill_no':next_bill_no})
+            
+        return Response({'bill_no': str(next_bill_no)})
     
 class StaffTransactionView(APIView):
     permission_classes = [IsAuthenticated]

@@ -91,7 +91,7 @@ class SalesTransaction(models.Model):
     phone_number = models.CharField(max_length=10,null=True,blank=True)
     total_amount = models.FloatField(null=True,blank=True)
     date = models.DateField()
-    bill_no = models.IntegerField()
+    bill_no = models.CharField(max_length=255, null=True, blank=True)
     branch = models.ForeignKey(Branch,related_name='sales_transaction',on_delete=models.CASCADE, null=True, blank=True)
     discount = models.FloatField(null=True,blank=True)
     subtotal = models.FloatField(null=True,blank=True)
