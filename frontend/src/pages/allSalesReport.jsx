@@ -245,8 +245,9 @@ const AllSalesReport = () => {
                 <TableHead className="text-white print:text-black">Method</TableHead>
                 <TableHead className="text-right text-white print:text-black">Unit Price</TableHead>
                 <TableHead className="text-right text-white print:text-black">Total Price</TableHead>
-                <TableHead className="text-right text-white print:text-black">Profit</TableHead>
-
+                {isAdmin && (
+                  <TableHead className="text-right text-white print:text-black">Profit</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -263,9 +264,11 @@ const AllSalesReport = () => {
                   <TableCell className="text-right text-white print:text-black">
                     {item.total_price.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
                   </TableCell>
-                  <TableCell className="text-right text-white print:text-black">
-                    {item.profit.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
-                  </TableCell>
+                  {isAdmin && (
+                    <TableCell className="text-right text-white print:text-black">
+                      {item.profit.toLocaleString("en-US", { style: "currency", currency: "NPR" })}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
