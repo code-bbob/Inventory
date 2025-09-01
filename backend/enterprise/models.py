@@ -43,4 +43,4 @@ class Branch(models.Model):
     name = models.CharField(max_length=255)
     enterprise = models.ForeignKey(Enterprise, on_delete=models.CASCADE,related_name='branch')
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.enterprise.name}"

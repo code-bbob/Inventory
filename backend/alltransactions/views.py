@@ -27,6 +27,7 @@ class PurchaseTransactionView(APIView):
         user = request.user
         enterprise = user.person.enterprise
         request.data['enterprise'] = enterprise.id
+        request.data['person'] = user.person
         serializer = PurchaseTransactionSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -148,6 +149,7 @@ class SalesTransactionView(APIView):
         user = request.user
         enterprise = user.person.enterprise
         request.data['enterprise'] = enterprise.id
+        request.data['person'] = user.person
         serializer = SalesTransactionSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

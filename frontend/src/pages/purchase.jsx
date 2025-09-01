@@ -216,8 +216,13 @@ export default function PurchaseTransactions() {
                       </div>
                     </div>
                   ))}
-                  <div className="mt-4 text-right text-white font-bold">
+                  <div className="mt-4 flex justify-between text-white font-bold">
+                    <div>
+                      Posted by: {transaction.person_name}
+                    </div>
+                    <div>
                     Total Amount: RS. {transaction?.total_amount?.toLocaleString()}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

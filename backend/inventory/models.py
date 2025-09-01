@@ -12,7 +12,7 @@ class Brand(models.Model):
     count = models.IntegerField(null=True,blank=True,default=0)
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE, related_name='inventory_brand', null=True, blank=True)
     def __str__(self):
-        return self.name
+        return f"Brand {self.pk} - {self.name} at {self.branch.name if self.branch else 'Unknown Branch'} of {self.enterprise.name}"
 
 class Phone(models.Model):
     name = models.CharField(max_length=30)
@@ -25,8 +25,8 @@ class Phone(models.Model):
     enterprise = models.ForeignKey(Enterprise, on_delete=models.CASCADE, related_name='inventory_phone',null=True, blank=True)
 
     def __str__(self):
-        return self.name    
-    
+        return f"Phone {self.pk} - {self.name} at {self.branch.name if self.branch else 'Unknown Branch'} of {self.enterprise.name}"
+
     # def save(self, *args, **kwargs):
     #     if self.pk is None:
     #         super().save(*args, **kwargs)
@@ -44,5 +44,5 @@ class Item(models.Model):
     imei_number = models.CharField(max_length=15,validators=[MinLengthValidator(15)])
     phone = models.ForeignKey(Phone, related_name="item",on_delete=models.CASCADE)
     def __str__(self):
-        return self.phone.name
+        return f"Item {self.imei_number} - {self.phone.name} at {self.phone.branch.name if self.phone.branch else 'Unknown Branch'} of {self.phone.enterprise.name}"
 

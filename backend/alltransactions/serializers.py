@@ -310,6 +310,7 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
     purchase = PurchaseSerializer(many=True)
     vendor_name = serializers.SerializerMethodField(read_only=True)
     date = serializers.DateField()
+    person_name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = PurchaseTransaction
@@ -594,8 +595,11 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
         representation['date'] = instance.date.strftime('%Y-%m-%d')
         return representation
 
+    def get_person_name(self, obj):
+        return obj.person.user.name if obj.person else None
+
     def get_vendor_name(self, obj):
-        return obj.vendor.name
+        return obj.vendor.name if obj.vendor else None
 
 
 class SalesSerializer(serializers.ModelSerializer):
@@ -772,6 +776,7 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
     enterprise_name = serializers.SerializerMethodField(read_only=True)
     enterprise_address = serializers.SerializerMethodField(read_only=True)
     enterprise_contact = serializers.SerializerMethodField(read_only=True)
+    person_name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = SalesTransaction
@@ -1008,6 +1013,9 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
             return getattr(obj.enterprise, 'address', None)
         except Exception:
             return None
+
+    def get_person_name(self, obj):
+        return obj.person.user.name if obj.person else None
 
     def get_enterprise_contact(self, obj):
         try:

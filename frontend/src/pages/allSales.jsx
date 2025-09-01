@@ -232,6 +232,9 @@ export default function AllSalesTransactions() {
                     </div>
                   ))}
                   <div className="mt-4 flex justify-between text-white font-bold">
+                    <div className='mt-4 text-white font-semibold'>
+                      Posted by: {transaction.person_name}
+                    </div>
                     <Button onClick={(e)=> handleInvoice(e,transaction.id)} className="bg-purple-600 hover:bg-purple-700 text-white">View Invoice</Button>
                     <div>Total Amount: RS. {transaction?.total_amount?.toLocaleString()}</div>
                   </div>

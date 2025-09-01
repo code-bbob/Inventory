@@ -14,7 +14,7 @@ class Vendor(models.Model):
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE, related_name='vendor_branch',null=True,blank=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.branch.name if self.branch else 'Unknown Branch'} at {self.enterprise.name}"
 
 class PurchaseTransaction(models.Model):
 
@@ -31,6 +31,7 @@ class PurchaseTransaction(models.Model):
     cheque_number = models.CharField(max_length=255,null=True,blank=True)
     cashout_date = models.DateField(null=True)
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE, related_name='purchase_transaction_branch',null=True,blank=True)
+    person = models.ForeignKey('enterprise.Person', on_delete=models.SET_NULL, null=True, blank=True)
 
     def calculate_total_amount(self):
         total = sum(purchase.unit_price for purchase in self.purchase.all())
@@ -47,8 +48,8 @@ class PurchaseTransaction(models.Model):
         super().delete(*args, **kwargs)
     
     def __str__(self):
-        return f"Transaction on {self.date} with {self.vendor}"
-    
+        return f"Transaction on {self.date} with {self.vendor} - {self.branch.name if self.branch else 'Unknown Branch'} at {self.enterprise.name}"
+
 class PurchaseReturn(models.Model):
     date = models.DateField(auto_now_add=True)
     enterprise = models.ForeignKey(Enterprise, on_delete=models.CASCADE)
@@ -59,6 +60,8 @@ class PurchaseReturn(models.Model):
     # purchase = models.ForeignKey(Purchase,related_name='purchase_return', on_delete=models.CASCADE,blank=True)
     # desc = models.CharField(max_length=50)
 
+    def __str__(self):
+        return f"Purchase Return {self.pk} - {self.branch.name if self.branch else 'Unknown Branch'} at {self.enterprise.name}"
 
 
 class Purchase(models.Model):
@@ -78,8 +81,8 @@ class Purchase(models.Model):
     )
 
     def __str__(self):
-        return f" {self.phone} @ {self.unit_price}"
-    
+        return f" {self.phone} @ {self.unit_price} - {self.purchase_transaction.branch.name if self.purchase_transaction.branch else 'Unknown Branch'} at {self.purchase_transaction.enterprise.name}"
+
     def save(self, *args, **kwargs):
         if self.pk is None:  # Only update stock for new purchases
             if isinstance(self.phone, int):
@@ -115,6 +118,7 @@ class SalesTransaction(models.Model):
     credited_amount = models.FloatField(null=True,blank=True,default=0)
     amount_paid = models.FloatField(null=True,blank=True,default=0)
     emi_debtor = models.ForeignKey('transaction.EMIDebtor', on_delete=models.CASCADE, null=True, blank=True, related_name='sales_transaction_emi',default=None)
+    person = models.ForeignKey('enterprise.Person', on_delete=models.SET_NULL, null=True, blank=True)
 
     def calculate_total_amount(self):
         total = sum(sale.unit_price for sale in self.sales.all())
@@ -127,7 +131,7 @@ class SalesTransaction(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Transaction on {self.date} with "
+        return f"Sale on {self.date} to {self.name if self.name else 'Unknown Customer'} - {self.branch.name if self.branch else 'Unknown Branch'} at {self.enterprise.name}"
 
 class SalesReturn(models.Model):
     date = models.DateField(auto_now_add=True)
@@ -135,7 +139,9 @@ class SalesReturn(models.Model):
     sales_transaction = models.ForeignKey(SalesTransaction, on_delete=models.CASCADE,related_name='sales_return')
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE, related_name='sales_return_branch',null=True,blank=True)
 
-    
+    def __str__(self):
+        return f"Sales Return {self.pk} - {self.branch.name if self.branch else 'Unknown Branch'} at {self.enterprise.name}"
+
 class Sales(models.Model):
     phone = models.ForeignKey(Phone, on_delete=models.CASCADE)
     imei_number = models.CharField(max_length=15,validators=[MinLengthValidator(15)])
@@ -152,8 +158,8 @@ class Sales(models.Model):
     )
 
     def __str__(self):
-        return f"{self.phone} @ {self.unit_price}"
-    
+        return f"{self.phone} @ {self.unit_price} - {self.sales_transaction.branch.name if self.sales_transaction.branch else 'Unknown Branch'} at {self.sales_transaction.enterprise.name}"
+
     def save(self, *args, **kwargs):
         if self.pk:
             self.checkit()
@@ -253,7 +259,7 @@ class Scheme(models.Model):
         self.save()
     
     def __str__(self):
-        return f"{self.phone} from {self.from_date} to {self.to_date}"
+        return f"{self.phone} from {self.from_date} to {self.to_date} - {self.branch.name if self.branch else 'Unknown Branch'} at {self.enterprise.name}"
 
 
 class Subscheme(models.Model):
@@ -282,9 +288,10 @@ class PriceProtection(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
     receivable = models.FloatField(null=True,blank=True,default=0)
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE, related_name='price_protection_branch',null=True,blank=True)
-        
 
-     
+    def __str__(self):
+        return f"Price Protection {self.pk} - {self.phone.name} from {self.from_date} to {self.to_date} - {self.branch.name if self.branch else 'Unknown Branch'} at {self.enterprise.name}"
+
     def calculate_receivable(self):
         # Calculate receivable based on price drop and number of sales
         sales_count = self.sales.count()
@@ -299,6 +306,9 @@ class PPItems(models.Model):
 
     def save(self,*args, **kwargs):
         super().save(*args, **kwargs)  # Save again after processing the schemes and pp
+
+    def __str__(self):
+        return f"PPItem {self.pk} - {self.phone.name} @ {self.cashback} - {self.pp.branch.name if self.pp.branch else 'Unknown Branch'} at {self.pp.enterprise.name}"
 
 
 class VendorTransaction(models.Model):
@@ -325,6 +335,9 @@ class VendorTransaction(models.Model):
         print(self.vendor.due)
         super().delete(*args, **kwargs)
 
+    def __str__(self):
+        return f"Vendor Transaction {self.pk} - {self.vendor.name} on {self.date} - {self.branch.name if self.branch else 'Unknown Branch'} at {self.enterprise.name}"
+
 
 class EMIDebtor(models.Model):
     
@@ -336,8 +349,8 @@ class EMIDebtor(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='emi_brand',null=True,blank=True)
 
     def __str__(self):
-        return self.name
-    
+        return f"EMI Debtor {self.pk} - {self.name} - {self.branch.name if self.branch else 'Unknown Branch'} at {self.enterprise.name}"
+
 class EMIDebtorTransaction(models.Model):
     debtor = models.ForeignKey(EMIDebtor, on_delete=models.CASCADE, related_name='emi_transactions')
     date = models.DateField()
@@ -351,8 +364,8 @@ class EMIDebtorTransaction(models.Model):
     desc = models.TextField(null=True, blank=True)
     due = models.FloatField(null=True, blank=True, default=0)
     def __str__(self):
-        return f"EMI Transaction of {self.amount} for {self.debtor.name} on {self.date}"
-    
+        return f"EMI Transaction of {self.amount} for {self.debtor.name} on {self.date} - {self.branch.name if self.branch else 'Unknown Branch'} at {self.enterprise.name}"
+
     @transaction.atomic
     def delete(self, *args, **kwargs):
         self.debtor.due = self.debtor.due + self.amount
