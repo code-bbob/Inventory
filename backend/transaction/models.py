@@ -31,7 +31,7 @@ class PurchaseTransaction(models.Model):
     cheque_number = models.CharField(max_length=255,null=True,blank=True)
     cashout_date = models.DateField(null=True)
     branch = models.ForeignKey('enterprise.Branch', on_delete=models.CASCADE, related_name='purchase_transaction_branch',null=True,blank=True)
-    person = models.ForeignKey('enterprise.Person', on_delete=models.SET_NULL, null=True, blank=True)
+    person = models.ForeignKey('enterprise.Person', on_delete=models.SET_NULL, null=True, blank=True, related_name='purchase_transactions')
 
     def calculate_total_amount(self):
         total = sum(purchase.unit_price for purchase in self.purchase.all())
@@ -118,7 +118,7 @@ class SalesTransaction(models.Model):
     credited_amount = models.FloatField(null=True,blank=True,default=0)
     amount_paid = models.FloatField(null=True,blank=True,default=0)
     emi_debtor = models.ForeignKey('transaction.EMIDebtor', on_delete=models.CASCADE, null=True, blank=True, related_name='sales_transaction_emi',default=None)
-    person = models.ForeignKey('enterprise.Person', on_delete=models.SET_NULL, null=True, blank=True)
+    person = models.ForeignKey('enterprise.Person', on_delete=models.SET_NULL, null=True, blank=True, related_name='sales_transactions')
 
     def calculate_total_amount(self):
         total = sum(sale.unit_price for sale in self.sales.all())

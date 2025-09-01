@@ -24,7 +24,7 @@ class PurchaseTransaction(models.Model):
     method = models.CharField(max_length=20,choices=(('cash','Cash'),('credit','Credit'),('cheque','Cheque')),default='credit')
     cheque_number = models.CharField(max_length=10,null=True,blank=True)
     cashout_date = models.DateField(null=True)
-    person = models.ForeignKey('enterprise.Person', on_delete=models.SET_NULL, null=True, blank=True)
+    person = models.ForeignKey('enterprise.Person', on_delete=models.SET_NULL, null=True, blank=True, related_name='all_purchase_transactions')
     def __str__(self):
         return f"{self.bill_no} - {self.vendor.name} at {self.branch.name if self.branch else 'Unknown Branch'} of {self.enterprise.name}"
 
@@ -99,7 +99,7 @@ class SalesTransaction(models.Model):
     debtor = models.ForeignKey('Debtor', on_delete=models.CASCADE, null=True, blank=True, related_name='all_sales_transaction')
     credited_amount = models.FloatField(null=True,blank=True,default=0)
     amount_paid = models.FloatField(null=True,blank=True,default=0)
-    person = models.ForeignKey('enterprise.Person', on_delete=models.SET_NULL, null=True, blank=True)
+    person = models.ForeignKey('enterprise.Person', on_delete=models.SET_NULL, null=True, blank=True, related_name='all_sales_transactions')
 
     def __str__(self):
         return f"Sales Transaction {self.pk} - {self.branch.name} at {self.enterprise.name}"
