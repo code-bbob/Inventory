@@ -17,7 +17,8 @@ from .models import Customer
 from django.db import transaction
 from .models import Debtor, DebtorTransaction
 from .serializers import DebtorSerializer, DebtorTransactionSerializer
-
+from django.db.models.functions import Cast
+from django.db.models import IntegerField
 
 # Create your views here.
 
