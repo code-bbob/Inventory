@@ -183,7 +183,7 @@ export default function Sidebar() {
       <AnimatePresence>
         {(isOpen || window.innerWidth >= 1024) && (
           <motion.div
-            className="sidebar fixed top-0 left-0 z-40 w-64 h-full bg-slate-800 shadow-xl overflow-y-auto scrollbar-thin"
+            className="sidebar fixed top-0 left-0 z-40 w-64 h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 shadow-xl overflow-y-auto scrollbar-thin"
             initial="closed"
             animate="open"
             exit="closed"
