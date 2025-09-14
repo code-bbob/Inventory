@@ -110,7 +110,7 @@ function App() {
           <Route path="inventory/branch/:branchId" element={<AllInventoryPageComponent />} />
           <Route path="inventory/branch/:branchId/brand/:id" element={<AllBrandProducts />} />
           <Route path="inventory/branch/:branchId/editproduct/:productId" element={<EditProductForm/>} />
-          <Route path="inventory/report/product/:productId" element={<AllProductReport/>} />
+          <Route path="inventory/branch/:branchId/report/product/:productId" element={<AllProductReport/>} />
 
           <Route path="sales/branch/:branchId" element={<AllSalesTransactions />} />
           <Route path="sales/form/branch/:branchId" element={<AllSalesTransactionForm />} />
