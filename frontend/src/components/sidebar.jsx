@@ -78,7 +78,8 @@ export default function Sidebar() {
       items: [
         { title: 'Add Purchase', icon: ShoppingCart, path: 'purchases/form' },
         { title: 'Purchases', icon: ShoppingCart, path: 'purchases' },
-        { title: 'PurchaseReturn', icon: TrendingDown, path: 'purchase-returns' },
+  { title: 'PurchaseReturn', icon: TrendingDown, path: 'purchase-returns' },
+  { title: 'PurchaseReport', icon: TrendingDown, path: 'purchase-report', externalReport: true },
       ]
     },
     {

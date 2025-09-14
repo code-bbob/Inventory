@@ -678,24 +678,6 @@ const handleNewProductVendorChange = (ids) => {
                     </div>
                     <div className="flex flex-col">
                       <Label
-                        htmlFor={`unit_price-${index}`}
-                        className="text-sm font-medium text-white mb-2"
-                      >
-                        Unit Price
-                      </Label>
-                      <Input
-                        type="number"
-                        id={`unit_price-${index}`}
-                        name="unit_price"
-                        onChange={(e) => handleChange(index, e)}
-                        value={sale.unit_price}
-                        className="bg-slate-600 border-slate-500 text-white focus:ring-purple-500 focus:border-purple-500"
-                        placeholder="Enter unit price"
-                        required
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <Label
                         htmlFor={`quantity-${index}`}
                         className="text-sm font-medium text-white mb-2"
                       >
@@ -709,6 +691,24 @@ const handleNewProductVendorChange = (ids) => {
                         value={sale.quantity}
                         className="bg-slate-600 border-slate-500 text-white focus:ring-purple-500 focus:border-purple-500"
                         placeholder="Enter quantity"
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <Label
+                        htmlFor={`unit_price-${index}`}
+                        className="text-sm font-medium text-white mb-2"
+                      >
+                        Unit Price
+                      </Label>
+                      <Input
+                        type="number"
+                        id={`unit_price-${index}`}
+                        name="unit_price"
+                        onChange={(e) => handleChange(index, e)}
+                        value={sale.unit_price}
+                        className="bg-slate-600 border-slate-500 text-white focus:ring-purple-500 focus:border-purple-500"
+                        placeholder="Enter unit price"
                         required
                       />
                     </div>

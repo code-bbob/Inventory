@@ -79,6 +79,7 @@ export default function Sidebar() {
         { title: 'Add Purchase', icon: ShoppingCart, path: 'purchases/form' },
         { title: 'Purchases', icon: ShoppingCart, path: 'purchases' },
         { title: 'PurchaseReturn', icon: TrendingDown, path: 'purchase-returns' },
+        { title: 'PurchaseReport', icon: TrendingUp, path: 'purchase-report', externalReport: true },
       ]
     },
     {
@@ -352,7 +353,7 @@ export default function Sidebar() {
                                       <div className="flex items-center gap-2">
                                         <item.icon className="h-3.5 w-3.5 text-fuchsia-300" />
                                         <span>{item.title}</span>
-                                        <span className="ml-auto text-[9px] uppercase tracking-wide bg-gradient-to-r from-fuchsia-500/30 to-pink-500/30 text-pink-200 px-1.5 py-0.5 rounded-full border border-pink-400/30 shadow-inner">Report</span>
+                                        <span className="ml-auto text-[8px] uppercase tracking-wide bg-gradient-to-r from-fuchsia-500/30 to-pink-500/30 text-pink-200 px-1.5 py-0.5 rounded-full border border-pink-400/30 shadow-inner">Report</span>
                                       </div>
                                     </a>
                                   </li>

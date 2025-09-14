@@ -51,6 +51,7 @@ import PurchaseReturns from "./pages/purchaseReturn";
 import SalesReturns from "./pages/salesReturns";
 import SalesReport from "./pages/salesReport";
 import AllSalesReport from "./pages/allSalesReport";
+import AllPurchaseReport from "./pages/allPurchaseReport";
 import AllPurchaseReturns from "./pages/allPurchaseReturn";
 import AllInvoicePage from "./pages/allInvoicePage";
 import EditProductForm from "./components/editProductForm";
@@ -116,6 +117,7 @@ function App() {
 
           <Route path="sales-returns/branch/:branchId" element={<AllSalesReturns/>}/>
           <Route path="sales-report/branch/:branchId" element={<AllSalesReport/>}/>
+          <Route path="purchase-report/branch/:branchId" element={<AllPurchaseReport/>}/>
 
           <Route path="staff/branch/:branchId" element={<StaffPage/>}/>
 

@@ -622,7 +622,14 @@ class SalesReportView(APIView):
             start_date = parse_date(start_date)
             end_date = parse_date(end_date)
             sales = sales.filter(sales_transaction__date__range=(start_date, end_date))
-
+        
+        if start_date and not end_date:
+            start_date = parse_date(start_date)
+            sales = sales.filter(sales_transaction__date__gte=start_date)
+        
+        if end_date and not start_date:
+            end_date = parse_date(end_date)
+            sales = sales.filter(sales_transaction__date__lte=end_date)
         
         if not search and not start_date and not end_date:
             sales = sales.filter(sales_transaction__date = timezone.now().date())
@@ -669,6 +676,71 @@ class SalesReportView(APIView):
             "total_discount": total_discount,
             "net_profit": total_profit - total_discount,
             # "cash_sales": cash_sales
+        })
+        return Response(list)
+
+class PurchaseReportView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, branch=None):
+        search = request.GET.get('search')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        product = request.GET.get('product')
+
+        purchases = Purchase.objects.filter(purchase_transaction__enterprise=request.user.person.enterprise, returned=False)
+        if branch:
+            purchases = purchases.filter(purchase_transaction__branch=branch)
+
+        if search:
+            brand_purchases = purchases.filter(product__brand__name__icontains=search)
+            purchases = brand_purchases
+
+        if product:
+            purchases = purchases.filter(product__name__startswith=product)
+
+        if start_date and end_date:
+            start_date = parse_date(start_date)
+            end_date = parse_date(end_date)
+            purchases = purchases.filter(purchase_transaction__date__range=(start_date, end_date))
+        
+        if start_date and not end_date:
+            start_date = parse_date(start_date)
+            purchases = purchases.filter(purchase_transaction__date__gte=start_date)
+
+        if end_date and not start_date:
+            end_date = parse_date(end_date)
+            purchases = purchases.filter(purchase_transaction__date__lte=end_date)
+
+        if not search and not start_date and not end_date:
+            purchases = purchases.filter(purchase_transaction__date=timezone.now().date())
+
+        count = purchases.count()
+
+        total_purchase = 0
+        total_discount = 0  # No purchase discount in model; keep for parity with sales
+        list = []
+        for p in purchases:
+            total_purchase += p.total_price or 0
+            list.append({
+                "date": p.purchase_transaction.date,
+                "brand": p.product.brand.name,
+                "quantity": p.quantity,
+                "product": p.product.name,
+                "unit_price": p.unit_price,
+                "total_price": p.total_price,
+                "profit": 0,  # Not applicable for purchase; kept for UI parity
+                "method": p.purchase_transaction.method,
+            })
+
+        list.append({
+            "count": count,
+            "subtotal_sales": total_purchase,
+            "total_sales": total_purchase - total_discount,
+            "total_profit": 0,
+            "total_discount": total_discount,
+            "net_profit": 0,
         })
         return Response(list)
      
