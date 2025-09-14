@@ -530,6 +530,14 @@ export default function AllBrandProducts() {
                 <p className="text-sm sm:text-base">No barcode available</p>
               )}
             </div>
+
+            <div className="mt-4">
+              <Button
+                onClick={() => navigate(`/inventory/report/product/${selectedProduct?.id}`)}
+              >
+                View Report
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
 
