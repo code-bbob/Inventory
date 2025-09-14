@@ -17,7 +17,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Purchase
         fields = ['id','phone', 'imei_number', 'unit_price','phone_name','purchase_transaction','returned']
-        read_only_fields = ['returned']
+        read_only_fields = ['returned','purchase_transaction']
         
     def get_phone_name(self,obj):
         return obj.phone.name
@@ -805,7 +805,7 @@ class SalesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sales
         fields = ['id','phone', 'imei_number', 'unit_price','phone_name','returned', 'sales_transaction']
-        read_only_fields = ['returned']
+        read_only_fields = ['returned','sales_transaction']
 
     
     def get_phone_name(self,obj):

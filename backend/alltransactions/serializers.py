@@ -21,7 +21,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Purchase
         fields = ['id','product_name', 'product', 'quantity', 'unit_price', 'purchase_transaction','total_price','returned','date']
-        read_only_fields = ['returned','total_price']
+        read_only_fields = ['returned','total_price','purchase_transaction']
 
     def get_product_name(self, obj):
         return obj.product.name
@@ -613,7 +613,7 @@ class SalesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sales
         fields = ['id', 'product', 'quantity', 'unit_price', 'total_price','product_name','sales_transaction','returned','date']
-        read_only_fields = ['total_price', 'returned']
+        read_only_fields = ['total_price', 'returned','sales_transaction']
 
     def get_product_name(self, obj):
         return obj.product.name
