@@ -50,6 +50,7 @@ import EditAllVendorTransactionForm from "./components/editallvendortransactions
 import PurchaseReturns from "./pages/purchaseReturn";
 import SalesReturns from "./pages/salesReturns";
 import SalesReport from "./pages/salesReport";
+import PurchaseReport from "./pages/purchaseReport";
 import AllSalesReport from "./pages/allSalesReport";
 import AllPurchaseReport from "./pages/allPurchaseReport";
 import AllPurchaseReturns from "./pages/allPurchaseReturn";
@@ -195,6 +196,7 @@ function App() {
 
             <Route path="emi/statement/:debtorId" element={<EMIDebtorStatementPage />} />
             <Route path="sales-report/branch/:branchId" element={<SalesReport/>}/>
+            <Route path="purchase-report/branch/:branchId" element={<PurchaseReport/>}/>
 
 
           </Route>

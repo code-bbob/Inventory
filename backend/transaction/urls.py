@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import PurchaseTransactionView,VendorView,SalesTransactionView,SchemeView,PriceProtectionView,StatsView,SchemeBrandView,SchemePhoneView,SingleScheme,PPBrandView,PPPhoneView,SinglePP,VendorBrandsView,SingleVendorBrandView,PurchaseTransactionChangeView,SalesTransactionChangeView,PriceProtectionChangeView,VendorTransactionView,BarChartView,LineGraphView,PurchaseReturnView,SalesReportView
+from .views import PurchaseTransactionView,VendorView,SalesTransactionView,SchemeView,PriceProtectionView,StatsView,SchemeBrandView,SchemePhoneView,SingleScheme,PPBrandView,PPPhoneView,SinglePP,VendorBrandsView,SingleVendorBrandView,PurchaseTransactionChangeView,SalesTransactionChangeView,PriceProtectionChangeView,VendorTransactionView,BarChartView,LineGraphView,PurchaseReturnView,SalesReportView,PurchaseReportView
 
 urlpatterns = [
     path('purchasetransaction/', PurchaseTransactionView.as_view(), name='purchasetransaction-create'),
@@ -57,6 +57,8 @@ urlpatterns = [
 
     path('sales-report/',SalesReportView.as_view(),name='sales_report'),
     path('sales-report/branch/<int:branch>/', SalesReportView.as_view(), name='sales_report_branch'),
+    path('purchase-report/',PurchaseReportView.as_view(),name='purchase_report'),
+    path('purchase-report/branch/<int:branch>/', PurchaseReportView.as_view(), name='purchase_report_branch'),
 
     path('emidebtors/branch/<int:branchId>/', views.EMIDebtorsView.as_view(), name='debtors_branch'),
     path('emidebtors/<int:pk>/', views.EMIDebtorsView.as_view(), name='debtor_detail'),

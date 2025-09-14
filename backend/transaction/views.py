@@ -1380,6 +1380,77 @@ class SalesReportView(APIView):
             "cash_sales": cash_sales
         })
         return Response(list)
+
+
+class PurchaseReportView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, branch=None):
+        search = request.GET.get('search')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        phone = request.GET.get('phone')
+
+        purchases = Purchase.objects.filter(purchase_transaction__enterprise=request.user.person.enterprise, returned=False)
+        if branch:
+            purchases = purchases.filter(purchase_transaction__branch=branch)
+
+        if search:
+            purchases = purchases.filter(phone__brand__name__icontains=search)
+
+        if phone:
+            purchases = purchases.filter(phone__name__startswith=phone)
+
+        if start_date and end_date:
+            start_date = parse_date(start_date)
+            end_date = parse_date(end_date)
+            purchases = purchases.filter(purchase_transaction__date__range=(start_date, end_date))
+        elif start_date and not end_date:
+            start_date = parse_date(start_date)
+            purchases = purchases.filter(purchase_transaction__date__gte=start_date)
+        elif end_date and not start_date:
+            end_date = parse_date(end_date)
+            purchases = purchases.filter(purchase_transaction__date__lte=end_date)
+
+        if not search and not start_date and not end_date:
+            purchases = purchases.filter(purchase_transaction__date=timezone.now().date())
+
+        count = purchases.count()
+
+        total_purchase = 0
+        total_discount = 0
+        cash_purchases = 0
+        purchase_transactions = []
+        cash_transaction_ids = []
+        result = []
+
+        for purchase in purchases:
+            total_purchase += purchase.unit_price
+            result.append({
+                "date": purchase.purchase_transaction.date.strftime('%Y-%m-%d'),
+                "brand": purchase.phone.brand.name,
+                "phone": purchase.phone.name,
+                "imei_number": purchase.imei_number,
+                "unit_price": purchase.unit_price,
+                "method": purchase.purchase_transaction.method,
+            })
+
+            if purchase.purchase_transaction.id not in purchase_transactions:
+                purchase_transactions.append(purchase.purchase_transaction.id)
+                if purchase.purchase_transaction.method == "cash" and purchase.purchase_transaction.id not in cash_transaction_ids:
+                    cash_transaction_ids.append(purchase.purchase_transaction.id)
+                    cash_purchases += purchase.unit_price
+
+        result.append({
+            "total_profit": 0,
+            "count": count,
+            "subtotal_sales": total_purchase,
+            "total_discount": total_discount,
+            "total_sales": total_purchase - total_discount,
+            "cash_sales": cash_purchases
+        })
+        return Response(result)
     
 
 
