@@ -195,6 +195,8 @@ class ReportView(APIView):
 
     def get(self,request,pk,format=None):
         product = Product.objects.get(id=pk)
+        if product.enterprise != request.user.person.enterprise:
+            return Response("Unauthorized")
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
         if start_date and end_date:
