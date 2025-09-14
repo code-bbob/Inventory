@@ -12,5 +12,6 @@ urlpatterns = [
     path('brand/branch/<int:branch>/', views.BrandView.as_view()),
     path('brand/<int:pk>/', views.BrandView.as_view()),
     path('barcode/<int:pk>/', views.generate_barcode),
+    path('report/product/<int:pk>/', views.ReportView.as_view()),
     
 ]

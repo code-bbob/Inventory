@@ -11,6 +11,7 @@ from barcode.writer import SVGWriter
 import io
 from django.http import FileResponse
 from rest_framework.permissions import IsAuthenticated
+from alltransactions.models import Sales,Purchase,SalesTransaction,PurchaseTransaction
 
 # Create your views here.
 
@@ -186,3 +187,20 @@ class MergeProductBrandView(APIView):
             print("CREATED",p)
             
         return Response("Merged")
+    
+
+class ReportView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request,pk,format=None):
+        product = Product.objects.get(id=pk)
+        sales = SalesTransaction.objects.filter(product=product)
+        sales = sales.order_by('sales_transaction__date')
+        purchases = PurchaseTransaction.objects.filter(product=product)
+        purchases = purchases.order_by('purchase_transaction__date')
+        transactions = sorted(
+            list(sales) + list(purchases),
+            key=lambda x: x.sales_transaction.date if isinstance(x, SalesTransaction) else x.purchase_transaction.date
+        )
+        
+        return Response(transactions)
