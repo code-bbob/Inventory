@@ -17,13 +17,17 @@ class VendorSerializer(serializers.ModelSerializer):
 class PurchaseSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     product_name = serializers.SerializerMethodField(read_only=True)
+    date = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Purchase
-        fields = ['id','product_name', 'product', 'quantity', 'unit_price', 'total_price','returned']
+        fields = ['id','product_name', 'product', 'quantity', 'unit_price', 'total_price','returned','date']
         read_only_fields = ['returned','total_price']
 
     def get_product_name(self, obj):
         return obj.product.name
+    
+    def get_date(self, obj):
+        return obj.purchase_transaction.date.strftime('%Y-%m-%d') if obj.purchase_transaction and obj.purchase_transaction.date else None
 
 # class PurchaseTransactionSerializer(serializers.ModelSerializer):
 #     purchase = PurchaseSerializer(many=True)
@@ -605,13 +609,17 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
 class SalesSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     product_name = serializers.SerializerMethodField(read_only=True)
+    date = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Sales
-        fields = ['id', 'product', 'quantity', 'unit_price', 'total_price','product_name','returned']
+        fields = ['id', 'product', 'quantity', 'unit_price', 'total_price','product_name','returned','date']
         read_only_fields = ['total_price', 'returned']
 
     def get_product_name(self, obj):
         return obj.product.name
+    
+    def get_date(self, obj):
+        return obj.sales_transaction.date.strftime('%Y-%m-%d') if obj.sales_transaction and obj.sales_transaction.date else None
 
 # class SalesTransactionSerializer(serializers.ModelSerializer):  
 #     sales = SalesSerializer(many=True)
