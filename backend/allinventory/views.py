@@ -201,14 +201,14 @@ class ReportView(APIView):
         end_date = request.GET.get('end_date')
         if start_date and end_date:
             opening_quantity = 0
-            for purchase in Purchase.objects.filter(product=product,purchase_transaction__date__lt=start_date):
+            for purchase in Purchase.objects.filter(product=product,purchase_transaction__date__lt=start_date, returned=False):
                 opening_quantity += purchase.quantity
-            for sale in Sales.objects.filter(product=product,sales_transaction__date__lt=start_date):
+            for sale in Sales.objects.filter(product=product,sales_transaction__date__lt=start_date, returned=False):
                 opening_quantity -= sale.quantity
-            sales = Sales.objects.filter(product=product,sales_transaction__date__range=[start_date,end_date])
+            sales = Sales.objects.filter(product=product,sales_transaction__date__range=[start_date,end_date], returned=False)
             sales = sales.order_by('sales_transaction__date')
             sales = SalesSerializer(sales,many=True).data
-            purchases = Purchase.objects.filter(product=product,purchase_transaction__date__range=[start_date,end_date])
+            purchases = Purchase.objects.filter(product=product,purchase_transaction__date__range=[start_date,end_date], returned=False)
             purchases = purchases.order_by('purchase_transaction__date')
             purchases = PurchaseSerializer(purchases,many=True).data
             purchases = list(purchases)
@@ -224,14 +224,14 @@ class ReportView(APIView):
             return Response({"opening_quantity": opening_quantity, "transactions": transactions})
         elif start_date:
             opening_quantity = 0
-            for purchase in Purchase.objects.filter(product=product,purchase_transaction__date__lt=start_date):
+            for purchase in Purchase.objects.filter(product=product,purchase_transaction__date__lt=start_date, returned=False):
                 opening_quantity += purchase.quantity
-            for sale in Sales.objects.filter(product=product,sales_transaction__date__lt=start_date):
+            for sale in Sales.objects.filter(product=product,sales_transaction__date__lt=start_date, returned=False):
                 opening_quantity -= sale.quantity
-            sales = Sales.objects.filter(product=product,sales_transaction__date__gte=start_date)
+            sales = Sales.objects.filter(product=product,sales_transaction__date__gte=start_date, returned=False)
             sales = sales.order_by('sales_transaction__date')
             sales = SalesSerializer(sales,many=True).data
-            purchases = Purchase.objects.filter(product=product,purchase_transaction__date__gte=start_date)
+            purchases = Purchase.objects.filter(product=product,purchase_transaction__date__gte=start_date, returned=False)
             purchases = purchases.order_by('purchase_transaction__date')
             purchases = PurchaseSerializer(purchases,many=True).data
             purchases = list(purchases)
@@ -246,10 +246,10 @@ class ReportView(APIView):
             )
             return Response({"opening_quantity": opening_quantity, "transactions": transactions})
         elif end_date:
-            sales = Sales.objects.filter(product=product,sales_transaction__date__lte=end_date)
+            sales = Sales.objects.filter(product=product,sales_transaction__date__lte=end_date, returned=False)
             sales = sales.order_by('sales_transaction__date')
             sales = SalesSerializer(sales,many=True).data
-            purchases = Purchase.objects.filter(product=product,purchase_transaction__date__lte=end_date)
+            purchases = Purchase.objects.filter(product=product,purchase_transaction__date__lte=end_date, returned=False)
             purchases = purchases.order_by('purchase_transaction__date')
             purchases = PurchaseSerializer(purchases,many=True).data
             purchases = list(purchases)
@@ -264,10 +264,10 @@ class ReportView(APIView):
             )
             return Response({"opening_quantity": 0, "transactions": transactions})
         else:
-            sales = Sales.objects.filter(product=product)
+            sales = Sales.objects.filter(product=product, returned=False)
             sales = sales.order_by('sales_transaction__date')
             sales = SalesSerializer(sales,many=True).data
-            purchases = Purchase.objects.filter(product=product)
+            purchases = Purchase.objects.filter(product=product, returned=False)
             purchases = purchases.order_by('purchase_transaction__date')
             purchases = PurchaseSerializer(purchases,many=True).data
             purchases = list(purchases)
