@@ -12,6 +12,7 @@ import io
 from django.http import FileResponse
 from rest_framework.permissions import IsAuthenticated
 from alltransactions.models import Sales,Purchase,SalesTransaction,PurchaseTransaction
+from alltransactions.serializers import SalesSerializer,PurchaseSerializer
 
 # Create your views here.
 
@@ -194,13 +195,87 @@ class ReportView(APIView):
 
     def get(self,request,pk,format=None):
         product = Product.objects.get(id=pk)
-        sales = SalesTransaction.objects.filter(product=product)
-        sales = sales.order_by('sales_transaction__date')
-        purchases = PurchaseTransaction.objects.filter(product=product)
-        purchases = purchases.order_by('purchase_transaction__date')
-        transactions = sorted(
-            list(sales) + list(purchases),
-            key=lambda x: x.sales_transaction.date if isinstance(x, SalesTransaction) else x.purchase_transaction.date
-        )
-        
-        return Response(transactions)
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        if start_date and end_date:
+            opening_quantity = 0
+            for purchase in Purchase.objects.filter(product=product,purchase_transaction__date__lt=start_date):
+                opening_quantity += purchase.quantity
+            for sale in Sales.objects.filter(product=product,sales_transaction__date__lt=start_date):
+                opening_quantity -= sale.quantity
+            sales = Sales.objects.filter(product=product,sales_transaction__date__range=[start_date,end_date])
+            sales = sales.order_by('sales_transaction__date')
+            sales = SalesSerializer(sales,many=True).data
+            purchases = Purchase.objects.filter(product=product,purchase_transaction__date__range=[start_date,end_date])
+            purchases = purchases.order_by('purchase_transaction__date')
+            purchases = PurchaseSerializer(purchases,many=True).data
+            purchases = list(purchases)
+            for p in purchases:
+                p['type'] = 'purchase'
+            sales = list(sales)
+            for s in sales:
+                s['type'] = 'sales'
+            transactions = sorted(
+                purchases + sales,
+                key=lambda x: x["date"]
+            )
+            return Response({"opening_quantity": opening_quantity, "transactions": transactions})
+        elif start_date:
+            opening_quantity = 0
+            for purchase in Purchase.objects.filter(product=product,purchase_transaction__date__lt=start_date):
+                opening_quantity += purchase.quantity
+            for sale in Sales.objects.filter(product=product,sales_transaction__date__lt=start_date):
+                opening_quantity -= sale.quantity
+            sales = Sales.objects.filter(product=product,sales_transaction__date__gte=start_date)
+            sales = sales.order_by('sales_transaction__date')
+            sales = SalesSerializer(sales,many=True).data
+            purchases = Purchase.objects.filter(product=product,purchase_transaction__date__gte=start_date)
+            purchases = purchases.order_by('purchase_transaction__date')
+            purchases = PurchaseSerializer(purchases,many=True).data
+            purchases = list(purchases)
+            for p in purchases:
+                p['type'] = 'purchase'
+            sales = list(sales)
+            for s in sales:
+                s['type'] = 'sales'
+            transactions = sorted(
+                purchases + sales,
+                key=lambda x: x["date"]
+            )
+            return Response({"opening_quantity": opening_quantity, "transactions": transactions})
+        elif end_date:
+            sales = Sales.objects.filter(product=product,sales_transaction__date__lte=end_date)
+            sales = sales.order_by('sales_transaction__date')
+            sales = SalesSerializer(sales,many=True).data
+            purchases = Purchase.objects.filter(product=product,purchase_transaction__date__lte=end_date)
+            purchases = purchases.order_by('purchase_transaction__date')
+            purchases = PurchaseSerializer(purchases,many=True).data
+            purchases = list(purchases)
+            for p in purchases:
+                p['type'] = 'purchase'
+            sales = list(sales)
+            for s in sales:
+                s['type'] = 'sales'
+            transactions = sorted(
+                purchases + sales,
+                key=lambda x: x["date"]
+            )
+            return Response({"opening_quantity": 0, "transactions": transactions})
+        else:
+            sales = Sales.objects.filter(product=product)
+            sales = sales.order_by('sales_transaction__date')
+            sales = SalesSerializer(sales,many=True).data
+            purchases = Purchase.objects.filter(product=product)
+            purchases = purchases.order_by('purchase_transaction__date')
+            purchases = PurchaseSerializer(purchases,many=True).data
+            purchases = list(purchases)
+            for p in purchases:
+                p['type'] = 'purchase'
+            sales = list(sales)
+            for s in sales:
+                s['type'] = 'sales'
+            transactions = sorted(
+                purchases + sales,
+                key=lambda x: x["date"]
+            )
+            return Response({"opening_quantity": 0, "transactions": transactions})
