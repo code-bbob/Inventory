@@ -533,7 +533,7 @@ export default function AllBrandProducts() {
 
             <div className="mt-4">
               <Button
-                onClick={() => navigate(`/inventory/report/product/${selectedProduct?.id}`)}
+                onClick={() => navigate(`/inventory/branch/${branchId}/report/product/${selectedProduct?.id}`)}
               >
                 View Report
               </Button>

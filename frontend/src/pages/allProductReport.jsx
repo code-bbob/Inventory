@@ -23,6 +23,7 @@ export default function AllProductReport() {
   const api = useAxios();
   const navigate = useNavigate();
   const { productId } = useParams();
+  const { branchId } = useParams();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -217,7 +218,6 @@ export default function AllProductReport() {
                   <TableRow className="bg-slate-700">
                     <TableHead className="text-white">Date</TableHead>
                     <TableHead className="text-white">Type</TableHead>
-                    <TableHead className="text-white">Description</TableHead>
                     <TableHead className="text-white text-right">Quantity</TableHead>
                     <TableHead className="text-white text-right">Remaining</TableHead>
                   </TableRow>
@@ -227,6 +227,7 @@ export default function AllProductReport() {
                     <TableRow
                       key={`${row.id || idx}-${row.date}`}
                       className={`${idx % 2 === 0 ? "bg-slate-800" : "bg-slate-750"}`}
+                      onClick={() => row.type === "purchase" ? navigate(`/purchases/branch/${branchId}/editform/${row.purchase_transaction}`) : navigate(`/sales/branch/${branchId}/editform/${row.sales_transaction}`)}
                     >
                       <TableCell className="text-white">
                         {row.date ? format(new Date(row.date), "MMM dd, yyyy") : "-"}
@@ -234,9 +235,7 @@ export default function AllProductReport() {
                       <TableCell className={`${(row.type || row.transaction_type) === "purchase" ? "text-green-400" : "text-blue-400"} font-medium`}>
                         {(row.type || row.transaction_type) === "purchase" ? "Purchase" : "Sale"}
                       </TableCell>
-                      <TableCell className="text-white max-w-xs truncate" title={row.desc || row.note || "-"}>
-                        {row.desc || row.note || "-"}
-                      </TableCell>
+                      
                       <TableCell className={`text-right font-semibold ${(row.type || row.transaction_type) === "purchase" ? "text-green-400" : "text-blue-400"}`}>
                         {(row.type || row.transaction_type) === "purchase" ? "+" : "-"}
                         {Number(row.qty ?? row.quantity ?? 0)}
