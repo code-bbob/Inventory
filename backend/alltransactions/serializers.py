@@ -3,6 +3,7 @@ from .models import Vendor, Purchase, PurchaseTransaction,PurchaseReturn, Sales,
 from django.db import transaction
 from allinventory.models import Product,Brand
 from alltransactions.models import Staff,StaffTransactions, Debtor, DebtorTransaction
+from django.utils import timezone
 
 
 
@@ -330,11 +331,21 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
+        today_date = timezone.now().date()
+        #if the purchase transaction is not of today's date, reject it
+        print(validated_data)
+        if validated_data.get('date') != today_date:
+            if validated_data['person'].role != 'Admin':
+
+                raise serializers.ValidationError("PurchaseTransaction date must be today's date.")
         purchases = validated_data.pop('purchase')
         purchase_transaction = PurchaseTransaction.objects.create(**validated_data)
         products_cache = {}
         brands_cache = {}
         desc = f'Purchase made for :\n'
+
+        
+
 
         # Create each Purchase and update Product/Brand counts/stocks
         for purchase in purchases:
@@ -800,6 +811,10 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
+        today_date = timezone.now().date()
+        if validated_data.get('date') != today_date:
+            if validated_data['person'].role != 'Admin':
+                raise serializers.ValidationError("SalesTransaction date must be today's date.")
         sales = validated_data.pop('sales')
         transaction = SalesTransaction.objects.create(**validated_data)
 

@@ -656,7 +656,8 @@ class SalesReportView(APIView):
                 "unit_price": sale.unit_price,
                 "total_price": sale.total_price,
                 "profit": sale.unit_price - sale.product.cost_price,
-                "method": sale.sales_transaction.method
+                "method": sale.sales_transaction.method,
+                "person": sale.sales_transaction.person.user.name if sale.sales_transaction.person and sale.sales_transaction.person.user else "N/A",
             })
             if sale.sales_transaction.id not in sales_transaction:
                 total_discount += sale.sales_transaction.discount
