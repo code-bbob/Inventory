@@ -328,11 +328,8 @@ class VendorTransaction(models.Model):
     
     @transaction.atomic
     def delete(self, *args, **kwargs):
-        print("HERE")
         self.vendor.due = self.vendor.due + self.amount
-        print(self.vendor.due)
         self.vendor.save() 
-        print(self.vendor.due)
         super().delete(*args, **kwargs)
 
     def __str__(self):

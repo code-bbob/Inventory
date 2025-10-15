@@ -740,7 +740,8 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
 
         if old_method != new_method or old_total != new_total or old_vendor != instance.vendor:
             # Delete existing vendor txns
-            VendorTransaction.objects.filter(purchase_transaction=instance).delete()
+            for vt in VendorTransaction.objects.filter(purchase_transaction=instance):
+                vt.delete()
             instance.vendor.refresh_from_db()
 
             # Base transaction
@@ -750,7 +751,7 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
                 'branch': instance.branch,
                 'enterprise': instance.enterprise,
                 'amount': -new_total,
-                'desc': desc,
+                'desc': 'change vako haina ra?',
                 'method': new_method,
                 'purchase_transaction': instance,
                 'type': 'base',
