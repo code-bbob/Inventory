@@ -1631,7 +1631,7 @@ class VendorStatementView(APIView):
                 date__lte=end_date
             )
 
-        vendor_transactions = vendor_transactions.order_by('id')
+        vendor_transactions = vendor_transactions.order_by('date','id')
         vendor = VendorSerializer(vendor).data 
         vts = VendorTransactionSerializer(vendor_transactions, many=True).data
         return Response({'vendor_data': vendor, 'vendor_transactions': vts})
