@@ -640,9 +640,8 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
                 # Handle IMEI change
                 new_imei = data.get('imei_number')
                 if new_imei and new_imei != purchase_inst.imei_number:
-                    Item.objects.filter(imei_number=purchase_inst.imei_number).delete()
+                    Item.objects.filter(imei_number=purchase_inst.imei_number, phone=purchase_inst.phone).delete()
                     Item.objects.create(imei_number=new_imei, phone=purchase_inst.phone)
-
 
                 # Handle phone swap
                 new_phone = data.get('phone')
