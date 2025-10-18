@@ -44,5 +44,5 @@ class Item(models.Model):
     imei_number = models.CharField(max_length=15,validators=[MinLengthValidator(15)])
     phone = models.ForeignKey(Phone, related_name="item",on_delete=models.CASCADE)
     def __str__(self):
-        return f"Item {self.imei_number} - {self.phone.name} at {self.phone.branch.name if self.phone.branch else 'Unknown Branch'} of {self.phone.enterprise.name}"
+        return f"Item {self.imei_number} - {self.phone.name}"
 
