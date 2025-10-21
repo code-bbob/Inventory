@@ -1060,7 +1060,7 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
                         phone=sale_inst.phone
                     )
 
-                    # sale_inst.imei_number = new_imei    #This fucking fixes it idk why
+                    sale_inst.imei_number = new_imei    #This fucking fixes it because checkit deletes the sales with imei 
 
 
 
