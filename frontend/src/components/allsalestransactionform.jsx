@@ -71,7 +71,7 @@ function AllSalesTransactionForm() {
   const [error, setError] = useState(null);
   const [showNewProductDialog, setShowNewProductDialog] = useState(false);
   const [showNewBrandDialog, setShowNewBrandDialog] = useState(false);
-  const [newProductData, setNewProductData] = useState({ name: "", brand: "", selling_price: "", cost_price: "", branch: branchId });
+  const [newProductData, setNewProductData] = useState({ name: "", brand: "", branch: branchId });
   const [newBrandName, setNewBrandName] = useState("");
   const [openProduct, setOpenProduct] = useState(
     Array(formData.sales.length).fill(false)
@@ -293,7 +293,23 @@ const handleNewProductVendorChange = (ids) => {
     try {
       const response = await api.post("allinventory/product/", newProductData);
       console.log("New Product Added:", response.data);
-      setProducts([...products, response.data]);
+      const newProduct = response.data;
+      setProducts([...products, newProduct]);
+      
+      // Auto-select the newly created product in the first empty product field
+      const emptyProductIndex = formData.sales.findIndex(
+        (sale) => sale.product === ""
+      );
+      if (emptyProductIndex !== -1) {
+        const newSales = [...formData.sales];
+        newSales[emptyProductIndex] = {
+          ...newSales[emptyProductIndex],
+          product: newProduct.id.toString(),
+          unit_price: newProduct.selling_price,
+        };
+        setFormData({ ...formData, sales: newSales });
+      }
+      
       setNewProductData({ name: "", brand: "", branch:branchId });
       setShowNewProductDialog(false);
     } catch (error) {

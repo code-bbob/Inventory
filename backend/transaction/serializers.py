@@ -7,7 +7,7 @@ from django.utils.timezone import localtime
 from transaction.models import VendorTransaction
 from alltransactions.models import Debtor, DebtorTransaction
 from alltransactions.serializers import DebtorTransactionSerializer
-
+from django.utils import timezone
 
 
 class PurchaseSerializer(serializers.ModelSerializer):
@@ -951,6 +951,15 @@ class SalesTransactionSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
+        today_date = timezone.now().date()
+        if validated_data.get('date') != today_date:
+            if validated_data['person'].role != 'Admin':
+                raise serializers.ValidationError("SalesTransaction date must be today's date.")
+        sales = validated_data.pop('sales')
+        transaction = SalesTransaction.objects.create(**validated_data)
+
+
+
         sales_data = validated_data.pop('sales', [])
         txn = SalesTransaction.objects.create(**validated_data)
 

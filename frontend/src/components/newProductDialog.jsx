@@ -106,7 +106,7 @@ export default function NewProductDialog({
           </div>
 
           {/* Cost Price */}
-          <div className="grid grid-cols-4 items-center gap-4">
+          {/* <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductCostPrice" className="text-right text-white">
               Cost Price
             </Label>
@@ -118,10 +118,10 @@ export default function NewProductDialog({
               className="col-span-3 bg-slate-700 border-slate-600 text-white"
               placeholder="Enter cost price"
             />
-          </div>
+          </div> */}
 
           {/* Selling Price */}
-          <div className="grid grid-cols-4 items-center gap-4">
+          {/* <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductSellingPrice" className="text-right text-white">
               Selling Price
             </Label>
@@ -133,7 +133,7 @@ export default function NewProductDialog({
               className="col-span-3 bg-slate-700 border-slate-600 text-white"
               placeholder="Enter selling price"
             />
-          </div>
+          </div> */}
 
           {/* Brand Select */}
           <div className="grid grid-cols-4 items-center gap-4">
@@ -167,7 +167,10 @@ export default function NewProductDialog({
                         {brands.map((brand) => (
                           <CommandItem
                             key={brand.id}
-                            onSelect={() => handleNewProductBrandChange(brand.id.toString())}
+                            onSelect={() => {
+                              handleNewProductBrandChange(brand.id.toString());
+                              setOpenBrand(false);
+                            }}
                             className="text-white hover:bg-slate-600"
                           >
                             <Check
@@ -182,7 +185,10 @@ export default function NewProductDialog({
                           </CommandItem>
                         ))}
                         <CommandItem
-                          onSelect={() => handleNewProductBrandChange("new")}
+                          onSelect={() => {
+                            handleNewProductBrandChange("new");
+                            setOpenBrand(false);
+                          }}
                           className="text-white hover:bg-slate-600"
                         >
                           <PlusCircle className="mr-2 h-4 w-4" />
@@ -197,7 +203,7 @@ export default function NewProductDialog({
           </div>
 
           {/* Branch Display - Now shows selected branch from localStorage */}
-          <div className="grid grid-cols-4 items-center gap-4">
+          {/* <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductBranch" className="text-right text-white">
               Branch
             </Label>
@@ -209,10 +215,10 @@ export default function NewProductDialog({
                 Branch is automatically set from your selection
               </p>
             </div>
-          </div>
+          </div> */}
 
           {/* Vendors Multi‑Select */}
-          <div className="grid grid-cols-4 items-center gap-4">
+          {/* <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="newProductVendors" className="text-right text-white">
               Vendors
             </Label>
@@ -233,7 +239,7 @@ export default function NewProductDialog({
                 placeholder="Select one or more vendors..."
               />
             </div>
-          </div>
+          </div> */}
         </div>
 
         <DialogFooter>
