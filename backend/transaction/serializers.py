@@ -750,7 +750,7 @@ class PurchaseTransactionSerializer(serializers.ModelSerializer):
                 'branch': instance.branch,
                 'enterprise': instance.enterprise,
                 'amount': -new_total,
-                'desc': 'change vako haina ra?',
+                'desc': desc,
                 'method': new_method,
                 'purchase_transaction': instance,
                 'type': 'base',
