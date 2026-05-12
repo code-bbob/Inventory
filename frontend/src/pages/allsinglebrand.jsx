@@ -214,6 +214,8 @@ export default function AllBrandProducts() {
     }
   };
 
+
+
   const handleEdit = (p) =>
     navigate(`/inventory/branch/${p.branch}/editproduct/${p.id}`);
 
@@ -236,6 +238,8 @@ export default function AllBrandProducts() {
   //   w.document.close();
   //   w.print();
   // };
+// Sort by quantity: High to Low
+filteredProducts.sort((a, b) => b.count - a.count);
 
   const handlePrintBarcode = () => {
   if (!selectedProduct || !barcode) return; // nothing to print
